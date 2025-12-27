@@ -21,6 +21,7 @@
 
 	// コンテナ作成後の自動実行コマンド（必要なら）
 	// "postCreateCommand": "cargo build",
+	"postCreateCommand": "rustup component add rustfmt",
 
 	// ユーザー設定（rootではなくvscodeユーザーを使う場合など設定）
 	"remoteUser": "root"
