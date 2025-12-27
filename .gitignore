@@ -1,0 +1,50 @@
+# --- Dependencies & Build Outputs (Frontend) ---
+node_modules/
+dist/
+build/
+pnpm-lock.yaml
+yarn.lock
+# package-lock.json はチーム開発ポリシーによるが、通常はコミット推奨（依存関係固定のため）
+
+# --- Rust / Tauri Build Outputs ---
+# Rustのビルド成果物は巨大になるため必須
+/src-tauri/target/
+target/
+
+# Tauri v2 generated files
+/src-tauri/gen/
+
+# --- Environment Variables (Security) ---
+# 秘密鍵やAPIキーを含む可能性があるため絶対にコミットしない
+.env
+.env.*
+!.env.example
+
+# --- IDE / Editor Specific ---
+.vscode/*
+!.vscode/extensions.json
+!.vscode/launch.json
+!.vscode/tasks.json
+.idea/
+*.swp
+*.swo
+
+# --- OS Specific ---
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# --- Logs ---
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+logs/
+*.log
+
+# --- Bundle / Installers ---
+*.msi
+*.exe
+*.dmg
+*.deb
+*.rpm
+*.app

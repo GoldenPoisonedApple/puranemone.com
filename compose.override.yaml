@@ -1,0 +1,33 @@
+services:
+  # --- Frontend (Dev Mode) ---
+  # Nginxではなく、Node.jsコンテナでVite開発サーバーを直接起動する
+  # Nginxの役割(プロキシ)はViteが代行する
+  frontend:
+    build:
+      context: ./frontend
+      target: builder  # Dockerfileのビルドステージ(Node環境)を再利用
+    command: npm run dev -- --host 0.0.0.0 --port 80
+    volumes:
+      - ./frontend:/app             # ホストのソースコードを同期
+      - /app/node_modules           # コンテナ内の依存関係を守る(ホスト側で上書きしない)
+    environment:
+      - CHOKIDAR_USEPOLLING=true    # ファイル変更検知を確実にする
+
+  # --- Backend (Dev Mode) ---
+  # コンパイル済みバイナリではなく、ソースコードを監視して走るコンテナにする
+# --- Backend (Dev Mode) ---
+  backend:
+    # image: ... (削除) 生のイメージではなく、Dockerfileの特定ステージを使う
+    build:
+      context: ./backend
+      target: base  #依存関係インストール済みのステージを指定
+    working_dir: /app
+    command: >
+      bash -c "cargo install cargo-watch && cargo watch -x run"
+    volumes:
+      - ./backend:/app
+      - cargo_cache:/usr/local/cargo/registry
+    environment:
+      - DATABASE_URL=postgres://user:password@db:5432/puranemone_db
+volumes:
+  cargo_cache:

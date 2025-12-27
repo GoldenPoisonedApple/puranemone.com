@@ -1,0 +1,21 @@
+use axum::{
+	routing::get,
+	Router,
+};
+use std::net::SocketAddr;
+
+#[tokio::main]
+async fn main() {
+	// ルーティング設定: ルート(/) にアクセスが来たら文字列を返す
+	let app = Router::new().route("/", get(|| async { "Hello from Rust Backend!" }));
+
+	// Docker内では 0.0.0.0 でリッスンしないと外部(Nginx)から繋がらない
+	// 127.0.0.1 だとコンテナ内部に閉じこもってしまうため注意
+	let addr = SocketAddr::from(([0, 0, 0, 0], 3000));
+	
+	println!("Listening on {}", addr);
+	
+	// サーバー起動
+	let listener = tokio::net::TcpListener::bind(addr).await.unwrap();
+	axum::serve(listener, app).await.unwrap();
+}
