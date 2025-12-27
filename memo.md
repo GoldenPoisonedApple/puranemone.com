@@ -4,6 +4,8 @@ DBのセキュリティ設定
 
 node.jsの定期的な更新など pull
 
+アプリ用のユーザは開発用と分けた方がいい(DB): 基本操作（SELECT, INSERT, UPDATE, DELETE）のみ
+
 ## 技術メモ
 ### docker conpose
 environmentに渡した変数は、環境変数となる
@@ -67,6 +69,9 @@ make down
 make logs
 ```
 
+### 開発
+container dev: VSCodeの拡張機能でコンテナ内部環境で開発可能に
+
 # ビルド
 ```bash
 # 開発モード
@@ -126,25 +131,41 @@ docker run --rm \
 docker exec -it puranemone_db /bin/sh
 ```
 
+- 基本操作
+```postgreSQL
+-- DB一覧
+\l
+-- DB切り替え
+\c <db>
+-- テーブル一覧
+\dt
+-- テーブル定義取得
+\d <table>
+-- 権限表示
+\du
+-- whoami
+SELECT current_user;
+```
+
+- 初期セットアップ
+```postgreSQL
+-- ユーザ作成
+CREATE USER <user> WITH PASSWORD <password>;
+-- データベース作成
+CREATE DATABASE <db> OWNER <user>
+-- 権限付与
+GRANT ALL PRIVILEGES ON DATABASE <\db> TO <user>;
+```
+- 操作ログイン
+```bash
+psql -h localhost -p 5432 -U <user> -d <db>
+```
+
 
 PostgreSQLは ポート5432を開放
 ```
 # 接続
 DATABASE_URL=postgres://<user>:<password>@<host>:5432/<db>
-```
-
-```
--- データベース一覧
-\l
-
--- 現在接続中のデータベース確認
-\c
-
--- データベース作成
-CREATE DATABASE testdb;
-
--- データベース削除
-DROP DATABASE testdb;
 ```
 
 ### 接続テスト
