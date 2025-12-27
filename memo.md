@@ -6,6 +6,8 @@ node.jsの定期的な更新など pull
 
 アプリ用のユーザは開発用と分けた方がいい(DB): 基本操作（SELECT, INSERT, UPDATE, DELETE）のみ
 
+全権取得はリファクタリングのたまもの
+
 ## 技術メモ
 ### docker conpose
 environmentに渡した変数は、環境変数となる

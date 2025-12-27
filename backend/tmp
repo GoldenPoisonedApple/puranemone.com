@@ -1,0 +1,12 @@
+src/
+├── main.rs           # エントリーポイント (DIコンテナの構築、サーバー起動)
+├── config.rs         # 環境変数や設定の読み込み
+├── error.rs          # アプリケーション固有のエラー型定義
+├── handlers/         # プレゼンテーション層 (HTTPリクエストの受け口)
+│   └── health.rs
+├── services/         # ビジネスロジック層 (トランザクション管理、複雑な計算)
+│   └── mod.rs
+├── repositories/     # データアクセス層 (SQLの発行、CRUD)
+│   └── user_repository.rs
+└── models/           # ドメインモデル / DTO (Data Transfer Object)
+    └── user.rs

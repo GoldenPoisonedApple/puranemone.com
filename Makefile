@@ -17,3 +17,15 @@ down:
 # ログ監視
 logs:
 	docker compose logs -f
+
+# DBコンテナに入る
+dbshell:
+	docker exec -it puranemone_db /bin/sh
+
+# Backendコンテナに入る
+backendshell:
+	docker exec -it puranemone_backend /bin/sh
+
+# Frontendコンテナに入る
+frontendshell:
+	docker exec -it puranemone_frontend /bin/sh
