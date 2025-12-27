@@ -28,6 +28,6 @@ services:
       - ./backend:/app
       - cargo_cache:/usr/local/cargo/registry
     environment:
-      - DATABASE_URL=postgres://user:password@db:5432/puranemone_db
+      - DATABASE_URL=postgres://${DB_USER}:${DB_PASSWORD}@db:5432/${DB_NAME}
 volumes:
   cargo_cache:
