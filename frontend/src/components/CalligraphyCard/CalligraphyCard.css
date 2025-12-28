@@ -1,6 +1,6 @@
 .calligraphy-card {
   border: 2px solid var(--color-gold);
-  padding: 1.5rem;
+  padding: 1.5rem 1.5rem 0.25rem 1.5rem;
   background: rgba(255, 255, 255, 0.85);
   box-shadow: 0 4px 20px rgba(212, 165, 116, 0.1);
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
@@ -12,13 +12,19 @@
   transform: translateZ(0);
   backface-visibility: hidden;
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   break-inside: avoid;
   margin-bottom: 1.5rem;
   width: 100%;
   max-width: 260px;
   margin-left: auto;
   margin-right: auto;
+}
+
+.card-main-content {
+  display: flex;
+  flex-direction: row;
+  flex-grow: 1;
 }
 
 /* 自分の書き初めのハイライト */
@@ -121,16 +127,17 @@
   text-align: left;
 }
 
-/* 筆のアイコン（右下） */
+/* 筆のアイコン（右下、更新日時の上） */
 .pen-icon {
   position: absolute;
-  bottom: 0.75rem;
+  bottom: 3rem;
   right: 0.75rem;
   width: 24px;
   height: 24px;
   opacity: 0.3;
   pointer-events: none;
   transition: opacity 0.3s ease;
+  z-index: 1;
 }
 
 .calligraphy-card:hover .pen-icon {
@@ -220,7 +227,7 @@
   .pen-icon {
     width: 20px;
     height: 20px;
-    bottom: 0.5rem;
+    bottom: 2.5rem;
     right: 0.5rem;
   }
 }
@@ -249,7 +256,22 @@
   .pen-icon {
     width: 18px;
     height: 18px;
-    bottom: 0.5rem;
+    bottom: 2.2rem;
     right: 0.5rem;
   }
+
+  .card-timestamp {
+    font-size: 0.7rem;
+  }
+}
+
+/* 更新日時 */
+.card-timestamp {
+  font-size: 0.75rem;
+  color: var(--color-sumi-light);
+  text-align: center;
+  padding-top: 0.5rem;
+  border-top: 1px solid rgba(212, 165, 116, 0.2);
+  letter-spacing: 0.05em;
+  opacity: 0.8;
 }
