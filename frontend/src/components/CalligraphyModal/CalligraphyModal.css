@@ -1,0 +1,294 @@
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(31, 41, 55, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: modal-overlay-fade-in 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: opacity;
+  /* backdrop-filterを削除してパフォーマンス向上 */
+}
+
+@keyframes modal-overlay-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.modal-content {
+  background: var(--color-washi);
+  max-width: 600px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 3rem;
+  position: relative;
+  border: 3px solid var(--color-gold);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  animation: modal-content-slide-up 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform, opacity;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+@keyframes modal-content-slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(30px) translateZ(0);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) translateZ(0);
+  }
+}
+
+/* 装飾的なコーナー */
+.modal-content::before,
+.modal-content::after {
+  content: '';
+  position: absolute;
+  width: 30px;
+  height: 30px;
+  border: 3px solid var(--color-gold);
+}
+
+.modal-content::before {
+  top: -3px;
+  left: -3px;
+  border-right: none;
+  border-bottom: none;
+}
+
+.modal-content::after {
+  bottom: -3px;
+  right: -3px;
+  border-left: none;
+  border-top: none;
+}
+
+.modal-close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  width: 40px;
+  height: 40px;
+  border: 2px solid var(--color-gold);
+  background: transparent;
+  color: var(--color-sumi);
+  font-size: 1.5rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  padding: 0;
+  line-height: 1;
+}
+
+.modal-close:hover {
+  background: var(--color-gold-light);
+  transform: rotate(90deg);
+}
+
+.modal-title {
+  font-family: "Yu Mincho", "游明朝", serif;
+  font-size: 2rem;
+  font-weight: 500;
+  color: var(--color-sumi);
+  margin: 0 0 2rem 0;
+  text-align: center;
+  letter-spacing: 0.2em;
+  text-indent: 0.2em;
+  position: relative;
+  padding-bottom: 1rem;
+}
+
+.modal-title::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80px;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--color-gold), transparent);
+}
+
+.modal-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.modal-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.modal-label {
+  font-family: "Yu Mincho", "游明朝", serif;
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--color-sumi);
+  letter-spacing: 0.1em;
+  padding-left: 0.5rem;
+}
+
+.modal-input,
+.modal-textarea {
+  width: 100%;
+  padding: 1rem 1.5rem;
+  font-size: 1.1rem;
+  font-family: "Yu Mincho", "游明朝", serif;
+  border: 2px solid var(--color-gold);
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--color-sumi);
+  outline: none;
+  transition: border-color 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+              background 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  letter-spacing: 0.05em;
+  will-change: border-color, box-shadow;
+}
+
+.modal-input::placeholder,
+.modal-textarea::placeholder {
+  color: var(--color-sumi-light);
+  opacity: 0.6;
+}
+
+.modal-input:focus,
+.modal-textarea:focus {
+  border-color: var(--color-gold);
+  background: rgba(255, 255, 255, 1);
+  box-shadow: 0 0 0 4px rgba(212, 165, 116, 0.1);
+}
+
+.modal-textarea {
+  resize: vertical;
+  min-height: 120px;
+  line-height: 1.8;
+}
+
+.modal-error {
+  color: var(--color-accent);
+  font-size: 0.9rem;
+  letter-spacing: 0.05em;
+  background: rgba(220, 38, 38, 0.05);
+  padding: 0.5rem 1rem;
+  border-left: 3px solid var(--color-accent);
+  margin: 0;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+  justify-content: flex-end;
+}
+
+.modal-button {
+  padding: 1rem 2rem;
+  font-size: 1rem;
+  font-family: "Yu Mincho", "游明朝", serif;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  border: 2px solid var(--color-gold);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.modal-button::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  transform: translate(-50%, -50%) translateZ(0);
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1), 
+              height 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: -1;
+  will-change: width, height;
+}
+
+.modal-button:hover::before {
+  width: 300px;
+  height: 300px;
+}
+
+.modal-button-cancel {
+  background: transparent;
+  color: var(--color-sumi);
+}
+
+.modal-button-cancel::before {
+  background: rgba(75, 85, 99, 0.1);
+}
+
+.modal-button-cancel:hover {
+  border-color: var(--color-sumi-light);
+}
+
+.modal-button-submit {
+  background: transparent;
+  color: var(--color-sumi);
+}
+
+.modal-button-submit::before {
+  background: var(--color-gold-light);
+}
+
+.modal-button-submit:hover {
+  border-color: var(--color-gold);
+}
+
+.modal-button-submit:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.modal-button-submit:disabled:hover::before {
+  width: 0;
+  height: 0;
+}
+
+@media (max-width: 768px) {
+  .modal-content {
+    width: 95%;
+    padding: 2rem 1.5rem;
+  }
+
+  .modal-title {
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .modal-input,
+  .modal-textarea {
+    padding: 0.875rem 1rem;
+    font-size: 1rem;
+  }
+
+  .modal-actions {
+    flex-direction: column-reverse;
+  }
+
+  .modal-button {
+    width: 100%;
+    padding: 0.875rem 1.5rem;
+  }
+}
+

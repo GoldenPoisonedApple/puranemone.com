@@ -1,12 +1,16 @@
 .calligraphy-card {
   border: 2px solid var(--color-gold);
   padding: 2rem;
-  background: rgba(255, 255, 255, 0.7);
-  backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.85);
   box-shadow: 0 4px 20px rgba(212, 165, 116, 0.1);
-  transition: all 0.4s ease;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              border-color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   overflow: hidden;
+  will-change: transform;
+  transform: translateZ(0);
+  backface-visibility: hidden;
 }
 
 .calligraphy-card::before {
@@ -18,13 +22,14 @@
   height: 100%;
   background: linear-gradient(135deg, transparent 0%, rgba(212, 165, 116, 0.05) 100%);
   opacity: 0;
-  transition: opacity 0.4s ease;
+  transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   pointer-events: none;
+  will-change: opacity;
 }
 
 .calligraphy-card:hover {
   box-shadow: 0 8px 32px rgba(212, 165, 116, 0.2);
-  transform: translateY(-4px);
+  transform: translateY(-4px) translateZ(0);
   border-color: var(--color-gold-light);
 }
 

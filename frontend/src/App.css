@@ -79,6 +79,15 @@
   padding: 2rem 0;
 }
 
+.empty-text {
+  color: var(--color-sumi-light);
+  font-size: 1.1rem;
+  letter-spacing: 0.1em;
+  line-height: 2;
+  padding: 3rem 2rem;
+  text-align: center;
+}
+
 @media (max-width: 768px) {
   .app {
     padding: 2rem 1rem;

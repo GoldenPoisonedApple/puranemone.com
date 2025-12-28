@@ -1,8 +1,7 @@
 .form-section {
   margin-bottom: 3rem;
   padding: 2.5rem;
-  background: rgba(255, 255, 255, 0.6);
-  backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.8);
   border: 2px solid var(--color-gold);
   box-shadow: 0 8px 32px rgba(212, 165, 116, 0.15);
   position: relative;
