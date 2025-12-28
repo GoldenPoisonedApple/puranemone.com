@@ -41,9 +41,9 @@ export const calligraphyApi = {
 	list: () => client<Calligraphy[]>('/calligraphy'),
 
 	/**
-	 * 特定の書き初めを取得
+	 * 自分の書き初めを取得
 	 */
-	get: (id: string) => client<Calligraphy>(`/calligraphy/${id}`),
+	get: () => client<Calligraphy>(`/calligraphy/me`),
 
 	/**
 	 * 書き初めを作成・更新
@@ -55,10 +55,10 @@ export const calligraphyApi = {
 		}),
 
 	/**
-	 * 書き初めを削除
+	 * 自分の書き初めを削除
 	 */
-	delete: (id: string) =>
-		client<void>(`/calligraphy/${id}`, {
+	delete: () =>
+		client<void>(`/calligraphy/me`, {
 			method: 'DELETE',
 		}),
 };

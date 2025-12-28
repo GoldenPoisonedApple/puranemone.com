@@ -90,11 +90,9 @@
 
 現在ログインしている（Cookieを持っている）ユーザーの書き初めを取得します。
 
-*   **URL**: `/api/calligraphy/:id`
-    *   `:id` には、Cookieで保持している自分の `user_id` を指定してください。
-    *   ※本来は `/me` エンドポイントが望ましいですが、現状はID指定が必要です。IDはPOST時のレスポンス等で把握してください。
+*   **URL**: `/api/calligraphy/me`
 *   **Method**: `GET`
-*   **認証**: 必須
+*   **認証**: 必須（Cookie自動付与）
 
 #### レスポンス (200 OK)
 ```json
@@ -119,10 +117,9 @@
 
 ### 2.4. 自分の書き初めを削除する
 
-*   **URL**: `/api/calligraphy/:id`
-    *   `:id` には自分の `user_id` を指定。
+*   **URL**: `/api/calligraphy/me`
 *   **Method**: `DELETE`
-*   **認証**: 必須
+*   **認証**: 必須（Cookie自動付与）
 
 #### レスポンス (204 No Content)
 *   ボディなし。成功時はステータスコードのみ返却。
