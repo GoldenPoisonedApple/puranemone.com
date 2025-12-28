@@ -1,6 +1,8 @@
 use crate::error::AppError;
 use crate::models::calligraphy::Calligraphy;
 use crate::repositories::db_repository::CalligraphyRepositoryTrait;
+use moka::future::Cache;
+use std::time::Duration;
 use uuid::Uuid;
 
 /// ビジネスロジックを担当するサービス
@@ -8,11 +10,42 @@ use uuid::Uuid;
 #[derive(Clone)]
 pub struct CalligraphyService<R: CalligraphyRepositoryTrait> {
   repository: R,
+  write_limit_cache: Cache<String, ()>, // 書き込み制限用
+  read_limit_cache: Cache<String, ()>,  // 読み込み制限用（追加）
 }
 
 impl<R: CalligraphyRepositoryTrait> CalligraphyService<R> {
   pub fn new(repository: R) -> Self {
-    Self { repository }
+    let write_limit_cache = Cache::builder()
+      .time_to_live(Duration::from_secs(10)) // 60秒 -> 10秒に緩和
+      .build();
+
+    let read_limit_cache = Cache::builder()
+      .time_to_live(Duration::from_secs(1)) // 1秒に1回（連打対策）
+      .build();
+    Self {
+      repository,
+      write_limit_cache,
+      read_limit_cache,
+    }
+  }
+
+  /// 書き込み系（upsert, delete）のレート制限
+  pub async fn check_write_rate_limit(&self, ip: String) -> Result<(), AppError> {
+    if self.write_limit_cache.get(&ip).await.is_some() {
+      return Err(AppError::TooManyRequests);
+    }
+    self.write_limit_cache.insert(ip, ()).await;
+    Ok(())
+  }
+
+  /// 読み込み系（list, get）のレート制限
+  pub async fn check_read_rate_limit(&self, ip: String) -> Result<(), AppError> {
+    if self.read_limit_cache.get(&ip).await.is_some() {
+      return Err(AppError::TooManyRequests);
+    }
+    self.read_limit_cache.insert(ip, ()).await;
+    Ok(())
   }
 
   /// 書き初めを作成・更新する

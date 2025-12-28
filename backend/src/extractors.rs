@@ -2,7 +2,6 @@
 // リクエストがハンドラーに到達する前に実行され、必要なデータを抽出・変換してハンドラーに渡す役割を果たす
 // Axumが勝手にねじ込んでくれる
 
-
 use axum::{
   async_trait,
   extract::FromRequestParts,
@@ -28,7 +27,7 @@ where
 {
   type Rejection = (StatusCode, &'static str);
 
-	/// リクエストのPartsからAuthUserを生成する
+  /// リクエストのPartsからAuthUserを生成する
   async fn from_request_parts(parts: &mut Parts, _state: &S) -> Result<Self, Self::Rejection> {
     // 1. request extensionsからCookiesを取り出す
     // (main.rsでCookieManagerLayerを追加していないとここでpanicする)
@@ -50,15 +49,38 @@ where
     let mut cookie = Cookie::new(COOKIE_NAME, new_id.to_string());
 
     // クッキーのセキュリティ設定
-		cookie.set_secure(true);			// HTTPS通信時のみ送信
-    cookie.set_http_only(true);	// JavaScriptからアクセス不可 XSS対策
+    cookie.set_secure(true); // HTTPS通信時のみ送信
+    cookie.set_http_only(true); // JavaScriptからアクセス不可 XSS対策
     cookie.set_path("/");
-		cookie.set_same_site(tower_cookies::cookie::SameSite::Lax);		// クロスサイトリクエスト時のCookieの送信制御 CSRF対策 Strict: 完全拒否 Lax: 一部許可 None: 制限なし
+    cookie.set_same_site(tower_cookies::cookie::SameSite::Lax); // クロスサイトリクエスト時のCookieの送信制御 CSRF対策 Strict: 完全拒否 Lax: 一部許可 None: 制限なし
     cookie.set_max_age(Duration::days(365)); // 1年間有効
 
     // レスポンスヘッダーへの書き込み予約
     cookies.add(cookie);
 
     Ok(AuthUser { id: new_id })
+  }
+}
+
+/// クライアントIPアドレス抽出用エクストラクター
+pub struct ClientIp(pub String);
+
+#[async_trait]
+impl<S> FromRequestParts<S> for ClientIp
+where
+  S: Send + Sync,
+{
+  type Rejection = (StatusCode, &'static str);
+
+	/// リクエストのPartsからClientIpを生成する
+  async fn from_request_parts(parts: &mut Parts, _state: &S) -> Result<Self, Self::Rejection> {
+    let ip = parts
+      .headers
+      .get("x-forwarded-for")
+      .and_then(|v| v.to_str().ok())
+      .map(|s| s.split(',').next().unwrap_or(s).trim().to_string())
+      .unwrap_or_else(|| "unknown".to_string());
+
+    Ok(ClientIp(ip))
   }
 }
