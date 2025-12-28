@@ -13,7 +13,8 @@
   backface-visibility: hidden;
   display: flex;
   flex-direction: column;
-  height: 100%;
+  break-inside: avoid;
+  margin-bottom: 1.5rem;
 }
 
 /* 自分の書き初めのハイライト */
@@ -227,6 +228,7 @@
 @media (max-width: 768px) {
   .calligraphy-card {
     padding: 1.25rem;
+    margin-bottom: 1rem;
   }
 
   .card-content {
@@ -247,13 +249,17 @@
     font-size: 0.7rem;
   }
 
-  .expand-button {
+  .toggle-expand-button {
     padding: 0.4rem 1.2rem;
     font-size: 0.85rem;
   }
 }
 
 @media (max-width: 480px) {
+  .calligraphy-card {
+    margin-bottom: 0.75rem;
+  }
+
   .card-content {
     font-size: 1.2rem;
   }

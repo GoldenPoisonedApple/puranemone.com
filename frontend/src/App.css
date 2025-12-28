@@ -74,9 +74,8 @@
 }
 
 .card-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 1.5rem;
+  column-count: 3;
+  column-gap: 1.5rem;
   padding: 2rem 0;
   width: 100%;
 }
@@ -93,8 +92,8 @@
 /* タブレット */
 @media (max-width: 1024px) {
   .card-grid {
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 1.25rem;
+    column-count: 2;
+    column-gap: 1.25rem;
   }
 }
 
@@ -115,8 +114,8 @@
   }
 
   .card-grid {
-    grid-template-columns: 1fr;
-    gap: 1rem;
+    column-count: 1;
+    column-gap: 0;
     padding: 1rem 0;
   }
 }
