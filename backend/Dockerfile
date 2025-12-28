@@ -15,6 +15,8 @@ WORKDIR /app
 # (本格運用時は cargo-chef の導入を推奨)
 COPY . .
 
+# テスト実行
+RUN cargo test --release
 # リリースビルド実行
 RUN cargo build --release
 
