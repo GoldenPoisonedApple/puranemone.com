@@ -49,9 +49,11 @@ where
     let new_id = Uuid::new_v4();
     let mut cookie = Cookie::new(COOKIE_NAME, new_id.to_string());
 
-    // クッキーのセキュリティ設定 (本番ではSecure属性などを調整)
-    cookie.set_http_only(true);
+    // クッキーのセキュリティ設定
+		cookie.set_secure(false);			// docker環境下でlocalhostアクセスするためfalseで良い
+    cookie.set_http_only(true);	// JavaScriptからアクセス不可 XSS対策
     cookie.set_path("/");
+		cookie.set_same_site(tower_cookies::cookie::SameSite::Lax);		// クロスサイトリクエスト時のCookieの送信制御 CSRF対策 Strict: 完全拒否 Lax: 一部許可 None: 制限なし
     cookie.set_max_age(Duration::days(365)); // 1年間有効
 
     // レスポンスヘッダーへの書き込み予約

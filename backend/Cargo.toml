@@ -22,7 +22,11 @@ uuid = { version = "1.19.0", features = ["serde", "v4"] }
 time = { version = "0.3.44", features = ["serde-human-readable", "macros", "formatting", "parsing"] }
 thiserror = "2.0.17"
 tower-cookies = "0.11.0"
+async-trait = "0.1.89"
 
 [dev-dependencies]
+http-body-util = "0.1.3"
+mime = "0.3.17"
 # for the test
 mockall = "0.14.0"
+tower = "0.5.2"

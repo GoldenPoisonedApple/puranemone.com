@@ -19,12 +19,3 @@ pub struct Calligraphy {
 	#[serde(with = "time::serde::iso8601")]
 	pub updated_at: OffsetDateTime,
 }
-
-/**
- * フロントから受け取るDTO
- */
-#[derive(Debug, Deserialize)]
-pub struct CreateCalligraphy {
-	// contentだけで良い（user_idは認証情報から、日時はDB自動生成）
-	pub content: String,
-}
