@@ -13,6 +13,11 @@
   --color-accent: #DC2626;
   --color-bg: #FFFEF8;
   
+  /* 和風の赤（朱色・紅色） */
+  --color-aka: #D32F2F;
+  --color-aka-light: #EF5350;
+  --color-aka-pale: #FFEBEE;
+  
   color: var(--color-sumi);
   background: linear-gradient(135deg, var(--color-washi) 0%, var(--color-bg) 100%);
   

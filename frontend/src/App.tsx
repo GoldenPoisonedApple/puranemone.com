@@ -30,11 +30,10 @@ function App() {
 	// フォーム送信
 	const { submit, isSubmitting } = useCalligraphySubmit(
 		() => {
-			alert(myCalligraphy ? '書き初めを更新しました' : '書き初めを奉納しました');
 			setIsModalOpen(false);
 		},
 		(err) => {
-			alert(`エラー: ${err.message}`);
+			console.error('書き初めの保存に失敗しました:', err);
 		}
 	);
 
@@ -75,8 +74,12 @@ function App() {
 					)}
 
 					<div className="card-grid">
-						{list?.map((item) => (
-							<CalligraphyCard key={item.user_id} calligraphy={item} />
+						{list?.map((item, index) => (
+							<CalligraphyCard 
+								key={item.user_id} 
+								calligraphy={item} 
+								isMine={index === 0}
+							/>
 						))}
 					</div>
 				</section>

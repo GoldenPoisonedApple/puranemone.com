@@ -119,7 +119,7 @@
   transform: translateX(-50%);
   width: 80px;
   height: 2px;
-  background: linear-gradient(90deg, transparent, var(--color-gold), transparent);
+  background: linear-gradient(90deg, transparent, var(--color-aka), transparent);
 }
 
 .modal-form {
@@ -244,15 +244,16 @@
 
 .modal-button-submit {
   background: transparent;
-  color: var(--color-sumi);
+  color: var(--color-aka);
+  border-color: var(--color-aka);
 }
 
 .modal-button-submit::before {
-  background: var(--color-gold-light);
+  background: var(--color-aka-pale);
 }
 
 .modal-button-submit:hover {
-  border-color: var(--color-gold);
+  border-color: var(--color-aka-light);
 }
 
 .modal-button-submit:disabled {

@@ -13,6 +13,23 @@
   backface-visibility: hidden;
 }
 
+/* 自分の書き初めのハイライト */
+.calligraphy-card.my-card {
+  border: 3px solid var(--color-aka);
+  background: linear-gradient(135deg, var(--color-aka-pale) 0%, rgba(255, 255, 255, 0.95) 100%);
+  box-shadow: 0 6px 30px rgba(211, 47, 47, 0.2);
+}
+
+.calligraphy-card.my-card::after {
+  border-color: var(--color-aka);
+  opacity: 0.5;
+}
+
+.calligraphy-card.my-card:hover {
+  border-color: var(--color-aka-light);
+  box-shadow: 0 10px 40px rgba(211, 47, 47, 0.3);
+}
+
 .calligraphy-card::before {
   content: '';
   position: absolute;
@@ -53,6 +70,22 @@
 
 .calligraphy-card:hover::after {
   opacity: 0.6;
+}
+
+/* 自分のカード用バッジ */
+.my-badge {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: var(--color-aka);
+  color: white;
+  padding: 0.4rem 1rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  border-radius: 2px;
+  box-shadow: 0 2px 8px rgba(211, 47, 47, 0.3);
+  z-index: 10;
 }
 
 .card-content {
