@@ -9,6 +9,7 @@ CSPとかもね
 アプリ用のユーザは開発用と分けた方がいい(DB): 基本操作（SELECT, INSERT, UPDATE, DELETE）のみ
 
 全件取得はリファクタリングのたまもの
+現在はバックのリポジトリで100件までに制限している
 
 CORS設定
 
@@ -191,9 +192,9 @@ Handler A -> Service(参照) -> Repository(参照) -> PgPool(参照) -> (実体�
 - サーバ動作確認(サーバ内)
 ```bash
 curl -v -c cookie.txt \
-  -X POST http://localhost:3000/api/calligraphy \
+  -X POST http://backend:3000/api/calligraphy \
   -H "Content-Type: application/json" \
-  -d '{"content": "初回：テスト書き初め"}'
+  -d '{"user_name": "Test User", "content": "初回：テスト書き初め"}'
 ```
 - 返答
 ```bash

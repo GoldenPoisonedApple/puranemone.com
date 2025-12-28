@@ -85,6 +85,7 @@ graph TD
 | カラム名 | 型 | 制約 | 説明 |
 | --- | --- | --- | --- |
 | `user_id` | UUID | PK | ユーザー識別子 |
+| `user_name` | TEXT | NOT NULL | ユーザー名 |
 | `content` | TEXT | NOT NULL | 書き初めの内容 |
 | `created_at` | TIMESTAMPTZ | NOT NULL | 作成日時 |
 | `updated_at` | TIMESTAMPTZ | NOT NULL | 更新日時 |
