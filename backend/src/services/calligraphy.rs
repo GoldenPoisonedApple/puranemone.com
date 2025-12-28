@@ -14,14 +14,18 @@ pub struct CalligraphyService<R: CalligraphyRepositoryTrait> {
   read_limit_cache: Cache<String, ()>,  // 読み込み制限用（追加）
 }
 
+const WRITE_LIMIT_DURATION: Duration = Duration::from_secs(3);
+const READ_LIMIT_DURATION: Duration = Duration::from_secs(1);
+
+
 impl<R: CalligraphyRepositoryTrait> CalligraphyService<R> {
   pub fn new(repository: R) -> Self {
     let write_limit_cache = Cache::builder()
-      .time_to_live(Duration::from_secs(10)) // 60秒 -> 10秒に緩和
+      .time_to_live(WRITE_LIMIT_DURATION) // 3秒に1回まで
       .build();
 
     let read_limit_cache = Cache::builder()
-      .time_to_live(Duration::from_secs(1)) // 1秒に1回（連打対策）
+      .time_to_live(READ_LIMIT_DURATION) // 1秒に1回まで
       .build();
     Self {
       repository,
