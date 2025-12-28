@@ -139,6 +139,30 @@ docker run --rm \
   rust:1.83-slim-bookworm \
   sh -c "cargo init --name server && cargo add axum tokio --features tokio/full serde serde_json"
 ```
+簡易サーバ
+```rust
+use axum::{
+	routing::get,
+	Router,
+};
+use std::net::SocketAddr;
+
+#[tokio::main]
+async fn main() {
+	// ルーティング設定: ルート(/) にアクセスが来たら文字列を返す
+	let app = Router::new().route("/", get(|| async { "Hello from Rust Backend!" }));
+
+	// Docker内では 0.0.0.0 でリッスンしないと外部(Nginx)から繋がらない
+	// 127.0.0.1 だとコンテナ内部に閉じこもってしまうため注意
+	let addr = SocketAddr::from(([0, 0, 0, 0], 3000));
+	
+	println!("Listening on {}", addr);
+	
+	// サーバー起動
+	let listener = tokio::net::TcpListener::bind(addr).await.unwrap();
+	axum::serve(listener, app).await.unwrap();
+}
+```
 
 - フォーマッタ
 ```bash
@@ -157,6 +181,41 @@ Handler A -> Service(参照) -> Repository(参照) -> PgPool(参照) -> (実体�
 - --nocapture
 
 テストでのprintln!()を出力する
+
+- サーバ動作確認(サーバ内)
+```bash
+curl -v -c cookie.txt \
+  -X POST http://localhost:3000/api/calligraphy \
+  -H "Content-Type: application/json" \
+  -d '{"content": "初回：テスト書き初め"}'
+```
+- 返答
+```bash
+root@d62fd47dbfe6:/app# curl -v -c cookie.txt \
+  -X POST http://localhost:3000/api/calligraphy \
+  -H "Content-Type: application/json" \
+  -d '{"content": "\345\210\235\345\233\236\357\274\232\343\203\206\343\202\271\
+343\203\210\346\233\270\343\201\215\345\210\235\343\202\201"}'
+Note: Unnecessary use of -X or --request, POST is already inferred.
+*   Trying 127.0.0.1:3000...
+* Connected to localhost (127.0.0.1) port 3000 (#0)
+> POST /api/calligraphy HTTP/1.1
+> Host: localhost:3000
+> User-Agent: curl/7.88.1
+> Accept: */*
+> Content-Type: application/json
+> Content-Length: 45
+> 
+< HTTP/1.1 200 OK
+< content-type: application/json
+* Added cookie calli_user_id="9a303069-c91f-49be-bd23-7dc9e84cc993" for domain localhost, path /, expire 1798449418
+< set-cookie: calli_user_id=9a303069-c91f-49be-bd23-7dc9e84cc993; HttpOnly; Path=/; Max-Age=31536000
+< content-length: 191
+< date: Sun, 28 Dec 2025 09:16:58 GMT
+< 
+* Connection #0 to host localhost left intact
+{"user_id":"9a303069-c91f-49be-bd23-7dc9e84cc993","content":"初回：テスト書き初め","created_at":"+002025-12-28T09:16:58.323480000Z","updated_at":"+002025-12-28T09:16:58.323480000Z"}
+```
 
 ## DB
 ```bash

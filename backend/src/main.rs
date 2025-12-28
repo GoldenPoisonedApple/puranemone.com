@@ -12,9 +12,11 @@ mod models;
 mod repositories;
 mod services;
 mod handlers;
+mod extractors;
 
 use repositories::db_repository::CalligraphyRepository;
 use services::calligraphy::CalligraphyService;
+use tower_cookies::CookieManagerLayer;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -54,7 +56,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     .route("/api/calligraphy/:id", get(handlers::calligraphy::get))
     .route("/api/calligraphy/:id", delete(handlers::calligraphy::delete),
     )
-    .with_state(service); // StateとしてServiceを注入
+    .with_state(service) // StateとしてServiceを注入
+		.layer(CookieManagerLayer::new()); // Cookie管理ミドルウェアの追加 CookieManager: レスポンスが返される直前にSet-Cookieヘッダーを追加する
 
 	// サーバー起動
 	let addr = SocketAddr::from(([0, 0, 0, 0], SERVER_PORT));
