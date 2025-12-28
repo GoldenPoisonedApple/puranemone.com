@@ -26,7 +26,7 @@ function App() {
 	});
 
 	// 自分の書き初めを取得
-	const { data: myCalligraphy, error: myError } = useMyCalligraphy();
+	const { data: myCalligraphy} = useMyCalligraphy();
 
 	// フォーム送信
 	const { submit, isSubmitting } = useCalligraphySubmit(
@@ -89,7 +89,7 @@ function App() {
 			
 			<div className={`app ${showContent ? 'show' : ''}`}>
 				<h1>書き初め</h1>
-				<h3>2026年<br/>あけましておめでとうございます</h3>
+				<h3>2026年  丙午<br/>あけましておめでとうございます</h3>
 				<p>せっかくなので、今年の抱負を書き初めにしてみてはいかがでしょうか。<br/>私の去年の抱負は「英語を話す」でした。</p>
 
 				{/* 一覧表示 */}
