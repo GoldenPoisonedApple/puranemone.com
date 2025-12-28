@@ -12,9 +12,9 @@ interface CalligraphyCardProps {
  * 書き初めカード表示コンポーネント
  */
 export const CalligraphyCard = ({ calligraphy, isMine = false, onClick }: CalligraphyCardProps) => {
-	// 5行未満かどうかを判定（改行で分割）
+	// 3行以下かどうかを判定（改行で分割）
 	const lineCount = calligraphy.content.split('\n').length;
-	const isCentered = lineCount < 5;
+	const isCentered = lineCount <= 3;
 
 	return (
 		<div 

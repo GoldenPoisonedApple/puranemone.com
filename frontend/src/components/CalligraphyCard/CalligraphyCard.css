@@ -106,11 +106,14 @@
   writing-mode: vertical-rl;
   text-orientation: upright;
   
-  /* 上揃え（縦書きの各行を上から開始） */
+  /* 3行分の幅に制限 */
+  max-width: 150px;
+  
+  /* 右揃え（縦書きの開始位置）*/
   text-align: left;
 }
 
-/* 5行未満の場合は中央揃え */
+/* 3行以下の場合は中央揃え */
 .calligraphy-card.centered-content .card-content {
   display: flex;
   align-items: center;
@@ -201,6 +204,7 @@
     font-size: 1.3rem;
     line-height: 2;
     padding: 1rem 0.5rem;
+    max-width: 130px;
   }
 
   .card-author {
@@ -229,6 +233,7 @@
   .card-content {
     font-size: 1.2rem;
     padding: 0.75rem 0.5rem;
+    max-width: 120px;
   }
 
   .card-author {
