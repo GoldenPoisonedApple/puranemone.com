@@ -11,6 +11,7 @@
   z-index: 1000;
   animation: modal-overlay-fade-in 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   will-change: opacity;
+  overflow: hidden;
   /* backdrop-filterを削除してパフォーマンス向上 */
 }
 
@@ -29,6 +30,7 @@
   width: 90%;
   max-height: 90vh;
   overflow-y: auto;
+  overflow-x: hidden;
   padding: 3rem;
   position: relative;
   border: 3px solid var(--color-gold);
@@ -181,7 +183,7 @@
 
 .modal-textarea {
   resize: vertical;
-  min-height: 120px;
+  min-height: 80px;
   line-height: 1.8;
 }
 

@@ -75,7 +75,14 @@ export const CalligraphyModal = ({
 	};
 
 	return (
-		<div className="modal-overlay" onClick={onClose}>
+		<div 
+			className="modal-overlay" 
+			onMouseDown={(e) => {
+				if (e.target === e.currentTarget) {
+					onClose();
+				}
+			}}
+		>
 			<div className="modal-content" onClick={(e) => e.stopPropagation()}>
 				<button className="modal-close" onClick={onClose} aria-label="閉じる">
 					×
@@ -120,7 +127,7 @@ export const CalligraphyModal = ({
 								maxLength: { value: 50, message: '50文字以内で入力してください' }
 							})}
 							className="modal-textarea"
-							rows={4}
+							rows={3}
 						/>
 						{errors.content && (
 							<p className="modal-error">{errors.content.message}</p>
