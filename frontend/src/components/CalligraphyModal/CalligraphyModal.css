@@ -183,7 +183,7 @@
 
 .modal-textarea {
   resize: vertical;
-  min-height: 80px;
+  min-height: 120px;
   line-height: 1.8;
 }
 

@@ -6,6 +6,7 @@ import { Opening } from './components/Opening';
 import { FloatingButton } from './components/FloatingButton';
 import { CalligraphyModal } from './components/CalligraphyModal';
 import { CalligraphyCard } from './components/CalligraphyCard';
+import { Footer } from './components/Footer';
 import type { CreateCalligraphyRequest } from './types/calligraphy';
 import './App.css';
 
@@ -79,6 +80,8 @@ function App() {
 			
 			<div className={`app ${showContent ? 'show' : ''}`}>
 				<h1>書き初め</h1>
+				<h3>2026年<br/>あけましておめでとうございます</h3>
+				<p>せっかくなので、今年の抱負を書き初めにしてみてはいかがでしょうか。<br/>私の去年の抱負は「英語を話す」でした。</p>
 
 				{/* 一覧表示 */}
 				<section className="list-section">
@@ -103,6 +106,9 @@ function App() {
 						})}
 					</div>
 				</section>
+
+				{/* フッター */}
+				{showContent && <Footer />}
 			</div>
 
 			{/* フローティングボタン */}

@@ -127,7 +127,7 @@ export const CalligraphyModal = ({
 								maxLength: { value: 50, message: '50文字以内で入力してください' }
 							})}
 							className="modal-textarea"
-							rows={3}
+							rows={4}
 						/>
 						{errors.content && (
 							<p className="modal-error">{errors.content.message}</p>
