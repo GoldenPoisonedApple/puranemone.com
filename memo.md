@@ -6,7 +6,13 @@ node.jsの定期的な更新など pull
 
 アプリ用のユーザは開発用と分けた方がいい(DB): 基本操作（SELECT, INSERT, UPDATE, DELETE）のみ
 
-全権取得はリファクタリングのたまもの
+全件取得はリファクタリングのたまもの
+
+CORS設定
+
+## その他メモ
+
+今回は互いのデータが干渉することがないから、データのアトミック性を考えていない
 
 ## 技術メモ
 ### docker conpose
@@ -69,6 +75,12 @@ make prod
 make down
 # ログ監視
 make logs
+# DBコンテナ接続
+make dbshell
+# バックのコンテナ接続
+make backendshell
+# フロントのコンテナ接続
+make frontendshell
 ```
 
 ### 開発
@@ -127,6 +139,24 @@ docker run --rm \
   rust:1.83-slim-bookworm \
   sh -c "cargo init --name server && cargo add axum tokio --features tokio/full serde serde_json"
 ```
+
+- フォーマッタ
+```bash
+rustup component add rustfmt
+```
+
+- 概念
+
+[起動時]
+Main -> Service(実体) -> Repository(実体) -> PgPool(実体: 接続数5)
+
+[リクエストA]
+Handler A -> Service(参照) -> Repository(参照) -> PgPool(参照) -> (実体のPgPoolを使う)
+
+
+- --nocapture
+
+テストでのprintln!()を出力する
 
 ## DB
 ```bash

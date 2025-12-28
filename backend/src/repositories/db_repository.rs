@@ -2,6 +2,14 @@ use crate::models::calligraphy::Calligraphy;
 use sqlx::PgPool;
 use uuid::Uuid;
 
+#[cfg_attr(test, mockall::automock)]
+pub trait CalligraphyRepositoryTrait: Send + Sync {
+    async fn create(&self, user_id: Uuid, content: String) -> Result<Calligraphy, sqlx::Error>;
+    async fn find_by_id(&self, user_id: Uuid) -> Result<Option<Calligraphy>, sqlx::Error>;
+    async fn find_all(&self) -> Result<Vec<Calligraphy>, sqlx::Error>;
+    async fn delete(&self, user_id: Uuid) -> Result<u64, sqlx::Error>;
+}
+
 /// Calligraphyテーブルへのアクセスを担当するリポジトリ
 /// PgPoolは内部でArc(参照カウント)を使用しているため、Cloneコストは低い
 #[derive(Clone)]
@@ -14,7 +22,9 @@ impl CalligraphyRepository {
   pub fn new(pool: PgPool) -> Self {
     Self { pool }
   }
+}
 
+impl CalligraphyRepositoryTrait for CalligraphyRepository {
   /// 新規書き初めの作成 (INSERT)
   ///
   /// # 引数
@@ -23,7 +33,7 @@ impl CalligraphyRepository {
   ///
   /// # 戻り値
   /// * `Ok(Calligraphy)` - DBにより生成されたタイムスタンプを含む完全なモデル
-  pub async fn create(&self, user_id: Uuid, content: String) -> Result<Calligraphy, sqlx::Error> {
+  async fn create(&self, user_id: Uuid, content: String) -> Result<Calligraphy, sqlx::Error> {
     // query_as! マクロ:
     // コンパイル時にSQL構文と、戻り値(Calligraphy構造体)の型整合性をチェックする。
     // フィールド名とカラム名が完全に一致している必要がある。
@@ -48,7 +58,7 @@ impl CalligraphyRepository {
   /// IDによる検索 (SELECT)
   ///
   /// 戻り値Option<Calligraphy>
-  pub async fn find_by_id(&self, user_id: Uuid) -> Result<Option<Calligraphy>, sqlx::Error> {
+  async fn find_by_id(&self, user_id: Uuid) -> Result<Option<Calligraphy>, sqlx::Error> {
     sqlx::query_as!(
       Calligraphy,
       r#"
@@ -65,7 +75,7 @@ impl CalligraphyRepository {
   /// 全件取得 (一覧表示用)
   ///
   /// 作成日時の新しい順（降順）で取得する。
-  pub async fn find_all(&self) -> Result<Vec<Calligraphy>, sqlx::Error> {
+  async fn find_all(&self) -> Result<Vec<Calligraphy>, sqlx::Error> {
     sqlx::query_as!(
       Calligraphy,
       r#"
@@ -78,6 +88,21 @@ impl CalligraphyRepository {
     .fetch_all(&self.pool)
     .await
   }
+
+	/// 削除
+	/// 戻り値は影響を受けた行数
+	async fn delete(&self, user_id: Uuid) -> Result<u64, sqlx::Error> {
+		let result = sqlx::query!(
+			r#"
+			DELETE FROM calligraphy
+			WHERE user_id = $1
+			"#,
+			user_id
+		).execute(&self.pool)
+		.await?;
+
+		Ok(result.rows_affected())
+	}
 }
 
 
@@ -145,9 +170,10 @@ mod tests {
 		println!("Test D Passed: Found in list");
 
 		// --- Cleanup: テストデータの削除 (行儀よく後始末) ---
-		sqlx::query!("DELETE FROM calligraphy WHERE user_id = $1", user_id)
-			.execute(&pool)
+		let deleted_count = repository.delete(user_id)
 			.await
-			.expect("Failed to clean up");
+			.expect("Failed to delete calligraphy");
+		assert_eq!(deleted_count, 1);
+		println!("Cleanup Passed: Deleted test data");
 	}
 }

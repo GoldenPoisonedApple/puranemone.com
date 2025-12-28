@@ -1,15 +1,28 @@
-use axum::{extract::State, routing::get, Json, Router};
-use serde_json::{json, Value};
+use axum::{
+    routing::{get, post, delete},
+    Router,
+};
 use sqlx::postgres::PgPoolOptions;
 use std::net::SocketAddr;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
+// モジュール宣言
+mod error;
 mod models;
 mod repositories;
+mod services;
+mod handlers;
+
+use repositories::db_repository::CalligraphyRepository;
+use services::calligraphy::CalligraphyService;
 
 #[tokio::main]
-async fn main() {
-  // B. 構造化ログの初期化
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
+	const MAX_CONNECTIONS: u32 = 5;
+	const SERVER_PORT: u16 = 3000;
+
+
+  // 構造化ログの初期化
   // RUST_LOG環境変数でレベル制御可能 (デフォルトは debug)
   tracing_subscriber::registry()
     .with(
@@ -19,46 +32,35 @@ async fn main() {
     .with(tracing_subscriber::fmt::layer())
     .init();
 
-  // C. DB接続プールの作成
+  // DB接続プールの作成
+	// poolは内部的にArc(参照カウンタ)で共有される
   let database_url = std::env::var("DATABASE_URL").expect("DATABASE_URL must be set");
   let pool = PgPoolOptions::new()
-    .max_connections(5)
+    .max_connections(MAX_CONNECTIONS)
     .connect(&database_url)
-    .await
-    .expect("Failed to connect to DB");
-
+    .await?;
   tracing::info!("Connected to Database!");
 
-  // アプリケーションの状態としてPoolを持たせる
+  // 依存関係の構築 (DI)
+  // Pool -> Repository -> Service
+	// 起動時に一度だけ構築し、Stateとして注入
+  let repository = CalligraphyRepository::new(pool);
+  let service = CalligraphyService::new(repository);
+
+  // ルーティング定義
   let app = Router::new()
-    .route("/", get(health_check))
-    .route("/db_test", get(db_test)) // DB接続テスト用
-    .with_state(pool);
+    .route("/api/calligraphy", post(handlers::calligraphy::upsert))
+    .route("/api/calligraphy", get(handlers::calligraphy::list))
+    .route("/api/calligraphy/:id", get(handlers::calligraphy::get))
+    .route("/api/calligraphy/:id", delete(handlers::calligraphy::delete),
+    )
+    .with_state(service); // StateとしてServiceを注入
 
-  let addr = SocketAddr::from(([0, 0, 0, 0], 3000));
-  tracing::info!("Listening on {}", addr);
+	// サーバー起動
+	let addr = SocketAddr::from(([0, 0, 0, 0], SERVER_PORT));
+	tracing::info!("listening on {}", addr);
+	let listener = tokio::net::TcpListener::bind(addr).await.unwrap();
+	axum::serve(listener, app).await.unwrap();
 
-  let listener = tokio::net::TcpListener::bind(addr).await.unwrap();
-  axum::serve(listener, app).await.unwrap();
-}
-
-// ヘルスチェック
-async fn health_check() -> &'static str {
-  "Hello from Modern Rust Backend!"
-}
-
-// DB接続テストハンドラ
-// State経由でDBプールを受け取る
-async fn db_test(State(pool): State<sqlx::PgPool>) -> Json<Value> {
-  // sqlx::query (実行時チェック) を使用
-  // ※ query! (コンパイル時チェック) は開発環境にDBがないとビルドコケるため、まずはこれで
-  let row: (i64,) = sqlx::query_as("SELECT 1")
-    .fetch_one(&pool)
-    .await
-    .unwrap_or((0,));
-
-  Json(json!({
-      "status": "ok",
-      "db_result": row.0
-  }))
+	Ok(())
 }
