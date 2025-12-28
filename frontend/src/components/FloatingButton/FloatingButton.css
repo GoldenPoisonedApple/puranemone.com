@@ -1,0 +1,124 @@
+.floating-button {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  width: 120px;
+  height: 120px;
+  border: 3px solid var(--color-gold);
+  background: rgba(255, 248, 220, 0.95);
+  cursor: pointer;
+  z-index: 999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-family: var(--font-family-mincho);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), 
+              box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 8px 32px rgba(212, 165, 116, 0.3);
+  animation: floating-button-appear 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+@keyframes floating-button-appear {
+  from {
+    opacity: 0;
+    transform: translateY(100px) translateZ(0);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) translateZ(0);
+  }
+}
+
+.floating-button::before {
+  content: '';
+  position: absolute;
+  top: -3px;
+  left: -3px;
+  width: 25px;
+  height: 25px;
+  border-top: 3px solid var(--color-gold);
+  border-left: 3px solid var(--color-gold);
+}
+
+.floating-button::after {
+  content: '';
+  position: absolute;
+  bottom: -3px;
+  right: -3px;
+  width: 25px;
+  height: 25px;
+  border-bottom: 3px solid var(--color-gold);
+  border-right: 3px solid var(--color-gold);
+}
+
+.floating-button:hover {
+  transform: translateY(-8px) translateZ(0);
+  box-shadow: 0 12px 48px rgba(212, 165, 116, 0.5);
+}
+
+.floating-button:active {
+  transform: translateY(-4px) translateZ(0);
+}
+
+.floating-button-icon {
+  font-size: 2.5rem;
+  line-height: 1;
+  animation: floating-button-icon-pulse 2s ease-in-out infinite;
+}
+
+@keyframes floating-button-icon-pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+.floating-button-text {
+  font-size: 0.9rem;
+  font-weight: 500;
+	color: var(--color-sumi);
+  letter-spacing: 0.2em;
+  text-indent: 0.2em;
+}
+
+/* モバイル対応 */
+@media (max-width: 768px) {
+  .floating-button {
+    bottom: 1.5rem;
+    right: 1.5rem;
+    width: 80px;
+    height: 80px;
+    gap: 0.3rem;
+  }
+
+  .floating-button::before,
+  .floating-button::after {
+    width: 20px;
+    height: 20px;
+  }
+
+  .floating-button-icon {
+    font-size: 2rem;
+  }
+
+  .floating-button-text {
+    font-size: 0.7rem;
+  }
+}
+
+/* スクロール時のアニメーション */
+.floating-button.scrolled {
+  transform: scale(0.9);
+}
+
+.floating-button.scrolled:hover {
+  transform: translateY(-8px) scale(0.95);
+}
+

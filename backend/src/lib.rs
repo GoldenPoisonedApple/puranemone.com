@@ -31,11 +31,11 @@ pub fn create_app(pool: PgPool) -> Router {
       get(handlers::calligraphy::list::<CalligraphyRepository>),
     )
     .route(
-      "/api/calligraphy/:id",
+      "/api/calligraphy/me",
       get(handlers::calligraphy::get::<CalligraphyRepository>),
     )
     .route(
-      "/api/calligraphy/:id",
+      "/api/calligraphy/me",
       delete(handlers::calligraphy::delete::<CalligraphyRepository>),
     )
     .with_state(service)	// StateとしてServiceを注入

@@ -1,42 +1,135 @@
-#root {
-  max-width: 1280px;
+.app {
+  max-width: 1600px;
   margin: 0 auto;
+  padding: 3rem 2rem;
+  font-family: var(--font-family-mincho);
+  text-align: center;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+}
+
+.app.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.app h1 {
+  font-size: 2.8rem;
+  font-weight: 500;
+  margin-bottom: 3rem;
+  color: var(--color-sumi);
+  letter-spacing: 0.3em;
+  text-indent: 0.3em;
+  position: relative;
+  padding-bottom: 1.5rem;
+}
+
+.app h1::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100px;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--color-gold), transparent);
+}
+
+.list-section {
+  margin-top: 4rem;
+  position: relative;
+  text-align: left;
+}
+
+.list-section::before {
+  content: '';
+  position: absolute;
+  top: -2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80%;
+  max-width: 230px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--color-gold), transparent);
+}
+
+.loading-text {
+  color: var(--color-sumi-light);
+  font-size: 1.1rem;
+  letter-spacing: 0.2em;
   padding: 2rem;
+}
+
+.error-text {
+  color: var(--color-accent);
+  font-size: 0.95rem;
+  letter-spacing: 0.1em;
+  padding: 1rem;
+  background: rgba(220, 38, 38, 0.05);
+  border: 1px solid rgba(220, 38, 38, 0.2);
+  border-radius: 4px;
+  margin: 1rem auto;
+  max-width: 400px;
+}
+
+.card-grid {
+  column-count: auto;
+  column-width: 230px;
+  column-gap: 1.5rem;
+  padding: 2rem 0;
+  width: 100%;
+}
+
+.empty-text {
+  color: var(--color-sumi-light);
+  font-size: 1.1rem;
+  letter-spacing: 0.1em;
+  line-height: 2;
+  padding: 3rem 2rem;
   text-align: center;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
-}
-
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
+/* タブレット */
+@media (max-width: 1024px) {
+  .card-grid {
+    column-width: 230px;
+    column-gap: 1.25rem;
   }
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
+/* モバイル */
+@media (max-width: 768px) {
+  .app {
+    padding: 2rem 1rem;
+  }
+
+  .app h1 {
+    font-size: 2rem;
+    letter-spacing: 0.2em;
+    margin-bottom: 2rem;
+  }
+
+  .list-section {
+    margin-top: 3rem;
+  }
+
+  .card-grid {
+    column-count: 1;
+    column-gap: 0;
+    padding: 1rem 0;
   }
 }
 
-.card {
-  padding: 2em;
-}
+/* 小さいモバイル */
+@media (max-width: 480px) {
+  .app {
+    padding: 1.5rem 0.75rem;
+  }
 
-.read-the-docs {
-  color: #888;
+  .card-grid {
+    column-count: 1;
+    column-gap: 0;
+    padding: 0.75rem 0;
+  }
 }

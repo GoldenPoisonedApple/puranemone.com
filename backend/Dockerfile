@@ -3,7 +3,7 @@
 FROM rust:slim-bookworm AS base
 WORKDIR /app
 # pkg-config と libssl-dev (OpenSSL) をインストール
-RUN apt-get update && apt-get install -y pkg-config libssl-dev && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y pkg-config libssl-dev curl && rm -rf /var/lib/apt/lists/*
 
 # --- Build Stage ---
 FROM base AS builder

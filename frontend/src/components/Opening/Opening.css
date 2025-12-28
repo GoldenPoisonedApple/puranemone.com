@@ -1,0 +1,165 @@
+.opening {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: linear-gradient(135deg, #FFF8DC 0%, #F5ECD7 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  animation: opening-fadein 0.8s ease-out;
+}
+
+.opening.fade-out {
+  animation: opening-fadeout 0.5s ease-out forwards;
+}
+
+.opening-content {
+  text-align: center;
+  animation: opening-content-slide 1s ease-out;
+}
+
+.opening-ornament {
+  width: 200px;
+  height: 2px;
+  margin: 0 auto;
+  position: relative;
+  overflow: hidden;
+}
+
+.opening-ornament::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, #D4A574, transparent);
+  animation: ornament-shine 2s ease-in-out infinite;
+}
+
+.opening-ornament.top {
+  margin-bottom: 3rem;
+}
+
+.opening-ornament.bottom {
+  margin-top: 3rem;
+}
+
+.opening-text {
+  opacity: 0;
+  animation: text-appear 1s ease-out 0.3s forwards;
+}
+
+.opening-title {
+  font-family: var(--font-family-mincho);
+  font-size: 4rem;
+  font-weight: 500;
+  color: #1F2937;
+  margin: 0;
+  letter-spacing: 0.5em;
+  text-indent: 0.5em;
+  line-height: 1.4;
+}
+
+.opening-year {
+  font-family: var(--font-family-mincho);
+  font-size: 1.2rem;
+  color: #4B5563;
+  margin: 1.5rem 0 0.5rem;
+  letter-spacing: 0.3em;
+  font-weight: 400;
+}
+
+.opening-subtitle {
+  font-family: var(--font-family-mincho);
+  font-size: 1rem;
+  color: #6B7280;
+  margin: 0;
+  letter-spacing: 0.5em;
+  text-indent: 0.5em;
+}
+
+/* アニメーション定義 */
+@keyframes opening-fadein {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes opening-fadeout {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes opening-content-slide {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes text-appear {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes ornament-shine {
+  0% {
+    transform: translateX(-100%);
+  }
+  50% {
+    transform: translateX(100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 768px) {
+  .opening-title {
+    font-size: 2.5rem;
+    letter-spacing: 0.3em;
+  }
+
+  .opening-year {
+    font-size: 1rem;
+  }
+
+  .opening-subtitle {
+    font-size: 0.875rem;
+  }
+
+  .opening-ornament {
+    width: 150px;
+  }
+
+  .opening-ornament.top {
+    margin-bottom: 2rem;
+  }
+
+  .opening-ornament.bottom {
+    margin-top: 2rem;
+  }
+}
+

@@ -1,0 +1,124 @@
+.app-footer {
+  margin-top: 2rem;
+  padding: 1rem 0;
+  border-top: 1px solid rgba(212, 165, 116, 0.3);
+  font-family: var(--font-family-mincho);
+}
+
+.footer-content {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+.footer-section {
+  margin-bottom: 1rem;
+}
+
+.footer-section:last-child {
+  margin-bottom: 0;
+}
+
+.footer-section-title {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--color-sumi);
+  margin: 0 0 0.5rem 0;
+  letter-spacing: 0.15em;
+  text-align: center;
+  position: relative;
+  padding-bottom: 0.3rem;
+}
+
+.footer-section-title::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 40px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--color-gold), transparent);
+}
+
+.footer-section-content {
+  text-align: left;
+}
+
+.footer-section-content.grid-layout {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem 1rem;
+}
+
+.footer-item {
+  font-size: 0.8rem;
+  color: var(--color-sumi-light);
+  margin: 0.25rem 0;
+  line-height: 1.6;
+  letter-spacing: 0.05em;
+}
+
+.footer-label {
+  font-weight: 500;
+  color: var(--color-sumi);
+  margin-right: 0.5rem;
+}
+
+.footer-link {
+  color: var(--color-gold);
+  text-decoration: none;
+  transition: color 0.3s ease;
+  border-bottom: 1px solid transparent;
+}
+
+.footer-link:hover {
+  color: var(--color-gold-light);
+  border-bottom-color: var(--color-gold-light);
+}
+
+.footer-text {
+  font-size: 0.8rem;
+  color: var(--color-sumi-light);
+  margin: 0.4rem 0;
+  line-height: 1.6;
+  letter-spacing: 0.05em;
+}
+
+@media (max-width: 768px) {
+  .app-footer {
+    margin-top: 2rem;
+    padding: 1rem 0;
+  }
+
+  .footer-content {
+    padding: 0 1rem;
+  }
+
+  .footer-section {
+    margin-bottom: 0.75rem;
+  }
+
+  .footer-section-title {
+    font-size: 0.85rem;
+    margin-bottom: 0.4rem;
+    padding-bottom: 0.25rem;
+  }
+
+  .footer-item,
+  .footer-text {
+    font-size: 0.75rem;
+    line-height: 1.5;
+    margin: 0.2rem 0;
+  }
+
+  .footer-section-content {
+    text-align: center;
+  }
+
+  .footer-section-content.grid-layout {
+    grid-template-columns: 1fr;
+    gap: 0.3rem;
+  }
+}
+

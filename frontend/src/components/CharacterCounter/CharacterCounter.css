@@ -1,0 +1,23 @@
+.character-counter {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  position: relative;
+}
+
+.counter-circle {
+  display: block;
+}
+
+.counter-progress {
+  transition: stroke-dashoffset 0.2s ease, stroke 0.2s ease;
+}
+
+.counter-number {
+  font-size: 0.875rem;
+  font-weight: 600;
+  font-family: system-ui, -apple-system, sans-serif;
+  min-width: 1.5rem;
+  text-align: right;
+}
+

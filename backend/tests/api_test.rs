@@ -56,7 +56,7 @@ async fn test_calligraphy_scenario() {
     .oneshot(
       Request::builder()
         .method("GET")
-        .uri(format!("/api/calligraphy/{}", created_id))
+        .uri("/api/calligraphy/me")
         .header("Cookie", cookie_header.to_str().unwrap()) // Cookieをセット
         .body(Body::empty())
         .unwrap(),
@@ -80,7 +80,7 @@ async fn test_calligraphy_scenario() {
     .oneshot(
       Request::builder()
         .method("DELETE")
-        .uri(format!("/api/calligraphy/{}", created_id))
+        .uri("/api/calligraphy/me")
         .header("Cookie", cookie_header.to_str().unwrap())
         .body(Body::empty())
         .unwrap(),
@@ -97,7 +97,7 @@ async fn test_calligraphy_scenario() {
     .oneshot(
       Request::builder()
         .method("GET")
-        .uri(format!("/api/calligraphy/{}", created_id))
+        .uri("/api/calligraphy/me")
         .header("Cookie", cookie_header.to_str().unwrap())
         .body(Body::empty())
         .unwrap(),

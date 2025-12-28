@@ -1,0 +1,277 @@
+.calligraphy-card {
+  border: 2px solid var(--color-gold);
+  padding: 1.5rem 1.5rem 0.25rem 1.5rem;
+  background: rgba(255, 255, 255, 0.85);
+  box-shadow: 0 4px 20px rgba(212, 165, 116, 0.1);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              border-color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+  will-change: transform;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  display: flex;
+  flex-direction: column;
+  break-inside: avoid;
+  margin-bottom: 1.5rem;
+  width: 100%;
+  max-width: 260px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.card-main-content {
+  display: flex;
+  flex-direction: row;
+  flex-grow: 1;
+}
+
+/* 自分の書き初めのハイライト */
+.calligraphy-card.my-card {
+  border: 3px solid var(--color-aka);
+  background: rgba(255, 255, 255, 0.85);
+  box-shadow: 0 6px 30px rgba(255, 180, 200, 0.25);
+}
+
+.calligraphy-card.my-card::after {
+  border-color: var(--color-aka);
+  opacity: 0.5;
+}
+
+.calligraphy-card.my-card:hover {
+  border-color: var(--color-aka-light);
+  box-shadow: 0 10px 40px rgba(255, 180, 200, 0.35);
+}
+
+.calligraphy-card.clickable {
+  cursor: pointer;
+}
+
+.calligraphy-card.clickable:active {
+  transform: translateY(-2px) translateZ(0);
+}
+
+
+.calligraphy-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, transparent 0%, rgba(212, 165, 116, 0.05) 100%);
+  opacity: 0;
+  transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  pointer-events: none;
+  will-change: opacity;
+}
+
+.calligraphy-card:hover {
+  box-shadow: 0 8px 32px rgba(212, 165, 116, 0.2);
+  transform: translateY(-4px) translateZ(0);
+  border-color: var(--color-gold-light);
+}
+
+.calligraphy-card:hover::before {
+  opacity: 1;
+}
+
+/* 装飾的なコーナー */
+.calligraphy-card::after {
+  content: '';
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 30px;
+  height: 30px;
+  border-top: 2px solid var(--color-gold);
+  border-right: 2px solid var(--color-gold);
+  opacity: 0.3;
+  transition: opacity 0.4s ease;
+}
+
+.calligraphy-card:hover::after {
+  opacity: 0.6;
+}
+
+
+.card-content {
+  font-size: 1.4rem;
+  font-weight: 500;
+  font-family: var(--font-family-mincho);
+  color: var(--color-sumi);
+  line-height: 2.2;
+  letter-spacing: 0.1em;
+  position: relative;
+  padding: 1rem 0.5rem;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  overflow-x: auto;
+  overflow-y: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  flex-grow: 1;
+  
+  /* 縦書き設定 */
+  writing-mode: vertical-rl;
+  text-orientation: upright;
+  
+  /* 右揃え（縦書きの開始位置）*/
+  text-align: left;
+}
+
+/* 3行以下の場合は中央揃え */
+.calligraphy-card.centered-content .card-content {
+  display: flex;
+  align-items: center;
+  text-align: left;
+}
+
+/* 筆のアイコン（右下、更新日時の上） */
+.pen-icon {
+  position: absolute;
+  bottom: 3rem;
+  right: 0.75rem;
+  width: 24px;
+  height: 24px;
+  opacity: 0.3;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+  z-index: 1;
+}
+
+.calligraphy-card:hover .pen-icon {
+  opacity: 0.5;
+}
+
+/* スクロールバーのスタイリング */
+.card-content::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.card-content::-webkit-scrollbar-track {
+  background: rgba(212, 165, 116, 0.1);
+  border-radius: 4px;
+}
+
+.card-content::-webkit-scrollbar-thumb {
+  background: var(--color-gold);
+  border-radius: 4px;
+  transition: background 0.3s ease;
+}
+
+.card-content::-webkit-scrollbar-thumb:hover {
+  background: var(--color-gold-light);
+}
+
+/* 作者名（書道風に左側に縦書き） */
+.card-author {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  padding: 1rem 0 1rem 0.5rem;
+  border-right: 1px solid rgba(212, 165, 116, 0.3);
+  min-width: 1rem;
+  flex-shrink: 0;
+}
+
+
+
+.user-name {
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  color: var(--color-sumi);
+  font-size: 0.9rem;
+  position: relative;
+  padding-top: 1.5rem;
+  
+  /* 縦書き設定 */
+  writing-mode: vertical-rl;
+  text-orientation: upright;
+  text-align: right;
+}
+
+.user-name::before {
+  content: '✿';
+  position: absolute;
+  top: 0;
+  right: 0;
+  color: var(--color-gold);
+  font-size: 0.9em;
+}
+
+
+@media (max-width: 768px) {
+  .calligraphy-card {
+    padding: 1.25rem;
+    margin-bottom: 1rem;
+    max-width: 200px;
+  }
+
+  .card-content {
+    font-size: 1.3rem;
+    line-height: 2;
+    padding: 1rem 0.5rem;
+  }
+
+  .card-author {
+    min-width: 2rem;
+    padding: 1rem 0 1rem 0.5rem;
+  }
+
+  .user-name {
+    font-size: 0.85rem;
+  }
+
+  .pen-icon {
+    width: 20px;
+    height: 20px;
+    bottom: 2.5rem;
+    right: 0.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .calligraphy-card {
+    padding: 1rem;
+    margin-bottom: 1rem;
+    max-width: 180px;
+  }
+
+  .card-content {
+    font-size: 1.2rem;
+    padding: 0.75rem 0.5rem;
+  }
+
+  .card-author {
+    min-width: 1.5rem;
+    padding: 0.75rem 0 0.75rem 0.5rem;
+  }
+
+  .user-name {
+    font-size: 0.8rem;
+  }
+
+  .pen-icon {
+    width: 18px;
+    height: 18px;
+    bottom: 2.2rem;
+    right: 0.5rem;
+  }
+
+  .card-timestamp {
+    font-size: 0.7rem;
+  }
+}
+
+/* 更新日時 */
+.card-timestamp {
+  font-size: 0.75rem;
+  color: var(--color-sumi-light);
+  text-align: center;
+  padding-top: 0.5rem;
+  border-top: 1px solid rgba(212, 165, 116, 0.2);
+  letter-spacing: 0.05em;
+  opacity: 0.8;
+}
