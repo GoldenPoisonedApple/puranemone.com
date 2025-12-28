@@ -1,4 +1,5 @@
 import './FloatingButton.css';
+import EditIcon from '../../assets/icons/筆の無料アイコン2.svg';
 
 interface FloatingButtonProps {
 	onClick: () => void;
@@ -14,7 +15,7 @@ export const FloatingButton = ({ onClick }: FloatingButtonProps) => {
 			onClick={onClick}
 			aria-label="書き初めを追加"
 		>
-			<span className="floating-button-icon">✍️</span>
+			<img src={EditIcon} alt="✍️" className="floating-button-icon" />
 			<span className="floating-button-text">書き初め</span>
 		</button>
 	);
