@@ -1,0 +1,68 @@
+// 型定義 (API仕様書準拠)
+export interface Calligraphy {
+	user_id: string;
+	content: string;
+	created_at: string;
+	updated_at: string;
+}
+
+export interface CreateCalligraphyRequest {
+	content: string;
+}
+
+export interface ApiError {
+	error: string;
+}
+
+const BASE_URL = '/api';
+
+/**
+ * 共通Fetchラッパー
+ * - credentials: 'include' を自動付与 (Cookie送信用)
+ * - エラーハンドリングの統一
+ */
+async function client<T>(path: string, options?: RequestInit): Promise<T> {
+	const response = await fetch(`${BASE_URL}${path}`, {
+		...options,
+		headers: {
+			'Content-Type': 'application/json',
+			...options?.headers,
+		},
+		// CORS環境下でCookieを送信するために必須
+		credentials: 'include',
+	});
+
+	if (!response.ok) {
+		const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+		throw new Error(errorData.error || `HTTP Error: ${response.status}`);
+	}
+
+	// 204 No Content の場合は null を返す (JSONパースエラー防止)
+	if (response.status === 204) {
+		return null as T;
+	}
+
+	return response.json();
+}
+
+// APIメソッド定義
+export const api = {
+	// 一覧取得
+	list: () => client<Calligraphy[]>('/calligraphy'),
+
+	// 個別取得
+	get: (id: string) => client<Calligraphy>(`/calligraphy/${id}`),
+
+	// 作成・更新
+	upsert: (data: CreateCalligraphyRequest) =>
+		client<Calligraphy>('/calligraphy', {
+			method: 'POST',
+			body: JSON.stringify(data),
+		}),
+
+	// 削除
+	delete: (id: string) =>
+		client<void>(`/calligraphy/${id}`, {
+			method: 'DELETE',
+		}),
+};

@@ -1,36 +1,82 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useForm } from 'react-hook-form';
+import { api, type Calligraphy, type CreateCalligraphyRequest } from './lib/api';
+import './App.css';
 
 function App() {
-  const [count, setCount] = useState(0)
+	const queryClient = useQueryClient();
 
-  return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-			<h1>version 1.0.1</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+	// 1. フォーム管理
+	const { register, handleSubmit, reset, formState: { errors } } = useForm<CreateCalligraphyRequest>();
+
+	// 2. データ取得 (一覧)
+	// Cookieはブラウザが自動管理するため、APIを叩くだけでOK
+	const { data: list, isLoading, error } = useQuery({
+		queryKey: ['calligraphy', 'list'],
+		queryFn: api.list,
+	});
+
+	// 3. データ送信 (作成・更新)
+	// ここでもIDを送る必要はない。サーバーがCookieを見て特定する。
+	const mutation = useMutation({
+		mutationFn: api.upsert,
+		onSuccess: () => {
+			// 成功したら一覧を再取得して最新化
+			queryClient.invalidateQueries({ queryKey: ['calligraphy'] });
+			reset();
+			alert('書き初めを奉納しました');
+		},
+		onError: (err: Error) => {
+			alert(`エラー: ${err.message}`);
+		},
+	});
+
+	const onSubmit = (data: CreateCalligraphyRequest) => {
+		mutation.mutate(data);
+	};
+
+	return (
+		<div className="container">
+			<h1>書き初めアプリ 🎍</h1>
+
+			{/* --- 投稿フォーム --- */}
+			<section className="input-section">
+				<form onSubmit={handleSubmit(onSubmit)}>
+					<input
+						type="text"
+						placeholder="今年の抱負 (50文字以内)"
+						{...register('content', {
+							required: '入力してください',
+							maxLength: { value: 50, message: '50文字以内で入力してください' }
+						})}
+						className="input-text"
+					/>
+					<button type="submit" disabled={mutation.isPending}>
+						{mutation.isPending ? '奉納中...' : '奉納する'}
+					</button>
+				</form>
+				{errors.content && <p className="error">{errors.content.message}</p>}
+			</section>
+
+			{/* --- 一覧表示 --- */}
+			<section className="list-section">
+				{isLoading && <p>読み込み中...</p>}
+				{error && <p className="error">データの取得に失敗しました</p>}
+
+				<div className="card-grid">
+					{list?.map((item: Calligraphy) => (
+						<div key={item.user_id} className="card">
+							{/* ID情報などを意識せず、純粋に内容だけを表示 */}
+							<div className="card-content">{item.content}</div>
+							<div className="card-footer">
+								<small>{new Date(item.updated_at).toLocaleString()}</small>
+							</div>
+						</div>
+					))}
+				</div>
+			</section>
+		</div>
+	);
 }
 
-export default App
+export default App;

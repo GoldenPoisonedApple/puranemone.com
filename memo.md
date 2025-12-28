@@ -125,6 +125,10 @@ docker run --rm \
   node:20-alpine \
   sh -c "npm create vite@latest . -- --template react-ts && npm install"
 ```
+- サーバー接続確認
+```bash
+curl -v -c cookie.txt -X POST http://backend:3000/api/calligraphy -H "Content-Type: application/json" -d '{"content": "初回：テスト書き初め"}'
+```
 
 ## バック
 EXPOSE 3000
