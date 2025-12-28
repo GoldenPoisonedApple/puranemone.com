@@ -15,7 +15,6 @@
   flex-direction: row;
   break-inside: avoid;
   margin-bottom: 1.5rem;
-  min-height: 200px;
 }
 
 /* 自分の書き初めのハイライト */
@@ -110,7 +109,7 @@
   line-height: 2.2;
   letter-spacing: 0.1em;
   position: relative;
-  padding: 1rem 0.5rem 1rem 1.5rem;
+  padding: 1rem 0.5rem;
   white-space: pre-wrap;
   word-wrap: break-word;
   overflow-x: auto;
@@ -121,6 +120,9 @@
   /* 縦書き設定 */
   writing-mode: vertical-rl;
   text-orientation: upright;
+  
+  /* 上揃え（縦書きの各行を上から開始） */
+  text-align: left;
 }
 
 /* スクロールバーのスタイリング */
@@ -148,10 +150,11 @@
 .card-author {
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;
+  justify-content: flex-start;
   padding: 1rem 0 1rem 0.5rem;
   border-right: 1px solid rgba(212, 165, 116, 0.3);
-  min-width: 3rem;
+  min-width: 1rem;
+  flex-shrink: 0;
 }
 
 .card-content::before,
@@ -203,17 +206,16 @@
   .calligraphy-card {
     padding: 1.25rem;
     margin-bottom: 1rem;
-    min-height: 180px;
   }
 
   .card-content {
     font-size: 1.3rem;
     line-height: 2;
-    padding: 1rem 0.5rem 1rem 1rem;
+    padding: 1rem 0.5rem;
   }
 
   .card-author {
-    min-width: 2.5rem;
+    min-width: 2rem;
     padding: 1rem 0 1rem 0.5rem;
   }
 
@@ -224,18 +226,17 @@
 
 @media (max-width: 480px) {
   .calligraphy-card {
-    margin-bottom: 0.75rem;
-    min-height: 160px;
     padding: 1rem;
+    margin-bottom: 0.75rem;
   }
 
   .card-content {
     font-size: 1.2rem;
-    padding: 0.75rem 0.5rem 0.75rem 0.75rem;
+    padding: 0.75rem 0.5rem;
   }
 
   .card-author {
-    min-width: 2rem;
+    min-width: 1.5rem;
     padding: 0.75rem 0 0.75rem 0.5rem;
   }
 

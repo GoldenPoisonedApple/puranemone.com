@@ -74,7 +74,8 @@
 }
 
 .card-grid {
-  column-count: 3;
+  column-count: auto;
+  column-width: 350px;
   column-gap: 1.5rem;
   padding: 2rem 0;
   width: 100%;
@@ -92,7 +93,7 @@
 /* タブレット */
 @media (max-width: 1024px) {
   .card-grid {
-    column-count: 2;
+    column-width: 300px;
     column-gap: 1.25rem;
   }
 }
@@ -127,6 +128,8 @@
   }
 
   .card-grid {
+    column-count: 1;
+    column-gap: 0;
     padding: 0.75rem 0;
   }
 }
