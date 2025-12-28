@@ -15,6 +15,10 @@
   flex-direction: row;
   break-inside: avoid;
   margin-bottom: 1.5rem;
+  width: 100%;
+  max-width: 260px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 /* 自分の書き初めのハイライト */
@@ -106,9 +110,6 @@
   writing-mode: vertical-rl;
   text-orientation: upright;
   
-  /* 3行分の幅に制限 */
-  max-width: 150px;
-  
   /* 右揃え（縦書きの開始位置）*/
   text-align: left;
 }
@@ -198,13 +199,13 @@
   .calligraphy-card {
     padding: 1.25rem;
     margin-bottom: 1rem;
+    max-width: 200px;
   }
 
   .card-content {
     font-size: 1.3rem;
     line-height: 2;
     padding: 1rem 0.5rem;
-    max-width: 130px;
   }
 
   .card-author {
@@ -227,13 +228,13 @@
 @media (max-width: 480px) {
   .calligraphy-card {
     padding: 1rem;
-    margin-bottom: 0.75rem;
+    margin-bottom: 1rem;
+    max-width: 180px;
   }
 
   .card-content {
     font-size: 1.2rem;
     padding: 0.75rem 0.5rem;
-    max-width: 120px;
   }
 
   .card-author {
