@@ -4,6 +4,8 @@ DBのセキュリティ設定
 
 node.jsの定期的な更新など pull
 
+CSPとかもね
+
 アプリ用のユーザは開発用と分けた方がいい(DB): 基本操作（SELECT, INSERT, UPDATE, DELETE）のみ
 
 全件取得はリファクタリングのたまもの
