@@ -1,4 +1,4 @@
-.calligraphy-page {
+.app {
   max-width: 600px;
   margin: 0 auto;
   padding: 2rem;
@@ -6,7 +6,7 @@
   text-align: center;
 }
 
-.calligraphy-page h1 {
+.app h1 {
   font-size: 3rem;
   font-weight: bold;
   margin-bottom: 2rem;
