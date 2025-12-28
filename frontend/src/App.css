@@ -49,7 +49,7 @@
   left: 50%;
   transform: translateX(-50%);
   width: 80%;
-  max-width: 400px;
+  max-width: 250px;
   height: 1px;
   background: linear-gradient(90deg, transparent, var(--color-gold), transparent);
 }
@@ -75,7 +75,7 @@
 
 .card-grid {
   column-count: auto;
-  column-width: 220px;
+  column-width: 230px;
   column-gap: 1.5rem;
   padding: 2rem 0;
   width: 100%;
@@ -93,7 +93,7 @@
 /* タブレット */
 @media (max-width: 1024px) {
   .card-grid {
-    column-width: 200px;
+    column-width: 230px;
     column-gap: 1.25rem;
   }
 }
