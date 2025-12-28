@@ -9,7 +9,6 @@ node.jsの定期的な更新など pull
 現在はバックのリポジトリで100件までに制限している
 
 
-クッキー消せばDDoSできる
 ユーザのIPアドレスとか保存したい
 管理画面あった方が不適切書き込み削除しやすい
 
@@ -26,6 +25,22 @@ ubutnuのwakeonlanはやった方がいいとは思ってる
 ```
 sudo chown -R $USER:$USER <folder>
 ```
+
+### クッキー消せばDDoSできる状態だった
+nginx.conf:
+```conf
+// 同じ大学構内等だと複数人が同一になる可能性がある
+// 同一IPからのアクセスを平均10回/sまでに制限
+limit_req_zone $binary_remote_addr zone=api_limit:10m rate=10r/s;
+// location内
+	// 同一IPからのアクセス(最大瞬間風速)を20回/sまでに制限
+	limit_req zone=api_limit burst=20 nodelay;
+```
+
+- rust側
+
+書き込み(15秒)、読み込み(1秒)のレート制限を設けることによってDBを保護
+
 
 ## 技術メモ
 ### docker conpose
