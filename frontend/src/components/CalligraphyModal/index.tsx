@@ -13,6 +13,7 @@ interface CalligraphyModalProps {
 	isDeleting?: boolean;
 	initialData?: CreateCalligraphyRequest;
 	isEdit: boolean;
+	serverError?: string | null;
 }
 
 /**
@@ -26,7 +27,8 @@ export const CalligraphyModal = ({
 	isSubmitting,
 	isDeleting = false,
 	initialData,
-	isEdit 
+	isEdit,
+	serverError
 }: CalligraphyModalProps) => {
 	const { register, handleSubmit, formState: { errors }, reset, watch } = useForm<CreateCalligraphyRequest>({
 		defaultValues: initialData
@@ -91,6 +93,12 @@ export const CalligraphyModal = ({
 				<h2 className="modal-title">
 					{isEdit ? '書き初めを編集' : '書き初めを奉納'}
 				</h2>
+
+				{serverError && (
+					<div className="modal-server-error">
+						{serverError}
+					</div>
+				)}
 
 				<form onSubmit={handleSubmit(handleFormSubmit)} className="modal-form">
 					<div className="modal-form-group">
