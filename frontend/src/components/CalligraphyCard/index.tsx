@@ -18,7 +18,6 @@ export const CalligraphyCard = ({ calligraphy, isMine = false, onClick }: Callig
 			role={isMine && onClick ? 'button' : undefined}
 			tabIndex={isMine && onClick ? 0 : undefined}
 		>
-			{isMine && <span className="my-badge">自分の書き初め</span>}
 			<div className="card-author">
 				<span className="user-name">{calligraphy.user_name}</span>
 			</div>
