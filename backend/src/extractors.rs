@@ -50,7 +50,7 @@ where
     let mut cookie = Cookie::new(COOKIE_NAME, new_id.to_string());
 
     // クッキーのセキュリティ設定
-		cookie.set_secure(false);			// docker環境下でlocalhostアクセスするためfalseで良い
+		cookie.set_secure(true);			// HTTPS通信時のみ送信
     cookie.set_http_only(true);	// JavaScriptからアクセス不可 XSS対策
     cookie.set_path("/");
 		cookie.set_same_site(tower_cookies::cookie::SameSite::Lax);		// クロスサイトリクエスト時のCookieの送信制御 CSRF対策 Strict: 完全拒否 Lax: 一部許可 None: 制限なし
