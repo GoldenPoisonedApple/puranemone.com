@@ -3,6 +3,9 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app
 
+# 開発時に curl を使うためにインストール
+RUN apk add --no-cache curl
+
 # キャッシュを効かせるためにpackage.jsonを先にコピー
 COPY package.json package-lock.json ./
 # npm install (ci は clean install。再現性を保証)
