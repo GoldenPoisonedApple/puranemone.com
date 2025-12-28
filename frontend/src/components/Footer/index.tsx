@@ -1,9 +1,13 @@
 import './Footer.css';
 
+interface FooterProps {
+	onOpenPrivacyPolicy: () => void;
+}
+
 /**
  * フッターコンポーネント
  */
-export const Footer = () => {
+export const Footer = ({ onOpenPrivacyPolicy }: FooterProps) => {
 	return (
 		<footer className="app-footer">
 			<div className="footer-content">
@@ -66,6 +70,16 @@ export const Footer = () => {
 						</p>
 					</div>
 				</section>
+
+				<div style={{ textAlign: 'center', marginTop: '1.5rem' }}>
+					<button 
+						className="footer-link" 
+						onClick={onOpenPrivacyPolicy}
+						style={{ fontSize: '0.8rem' }}
+					>
+						プライバシーポリシー
+					</button>
+				</div>
 			</div>
 		</footer>
 	);
