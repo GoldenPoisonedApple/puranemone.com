@@ -4,6 +4,14 @@
   padding: 2rem;
   font-family: "Yu Mincho", serif;
   text-align: center;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+}
+
+.app.show {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 .app h1 {
@@ -31,4 +39,3 @@
   flex-direction: column;
   gap: 1rem;
 }
-
