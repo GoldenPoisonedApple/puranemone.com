@@ -90,19 +90,23 @@ function App() {
 					)}
 
 					<div className="card-grid">
-						{list?.map((item) => (
-							<CalligraphyCard 
-								key={item.user_id} 
-								calligraphy={item} 
-								isMine={myCalligraphy?.user_id === item.user_id}
-							/>
-						))}
+						{list?.map((item) => {
+							const isMyCard = myCalligraphy?.user_id === item.user_id;
+							return (
+								<CalligraphyCard 
+									key={item.user_id} 
+									calligraphy={item} 
+									isMine={isMyCard}
+									onClick={isMyCard ? handleOpenModal : undefined}
+								/>
+							);
+						})}
 					</div>
 				</section>
 			</div>
 
 			{/* フローティングボタン */}
-			{showContent && <FloatingButton onClick={handleOpenModal} />}
+			{showContent && <FloatingButton onClick={handleOpenModal} hasCalligraphy={!!myCalligraphy} />}
 
 			{/* モーダル */}
 			<CalligraphyModal

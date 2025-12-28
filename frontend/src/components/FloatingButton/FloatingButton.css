@@ -83,7 +83,7 @@
 .floating-button-text {
   font-size: 0.9rem;
   font-weight: 500;
-  color: var(--color-aka);
+	color: var(--color-sumi);
   letter-spacing: 0.2em;
   text-indent: 0.2em;
 }
