@@ -1,5 +1,5 @@
 .app {
-  max-width: 700px;
+  max-width: 1600px;
   margin: 0 auto;
   padding: 3rem 2rem;
   font-family: "Yu Mincho", "游明朝", serif;
@@ -39,6 +39,7 @@
 .list-section {
   margin-top: 4rem;
   position: relative;
+  text-align: left;
 }
 
 .list-section::before {
@@ -73,10 +74,11 @@
 }
 
 .card-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 1.5rem;
   padding: 2rem 0;
+  width: 100%;
 }
 
 .empty-text {
@@ -88,6 +90,15 @@
   text-align: center;
 }
 
+/* タブレット */
+@media (max-width: 1024px) {
+  .card-grid {
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.25rem;
+  }
+}
+
+/* モバイル */
 @media (max-width: 768px) {
   .app {
     padding: 2rem 1rem;
@@ -101,5 +112,22 @@
 
   .list-section {
     margin-top: 3rem;
+  }
+
+  .card-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    padding: 1rem 0;
+  }
+}
+
+/* 小さいモバイル */
+@media (max-width: 480px) {
+  .app {
+    padding: 1.5rem 0.75rem;
+  }
+
+  .card-grid {
+    padding: 0.75rem 0;
   }
 }

@@ -1,6 +1,6 @@
 .calligraphy-card {
   border: 2px solid var(--color-gold);
-  padding: 2rem;
+  padding: 1.5rem;
   background: rgba(255, 255, 255, 0.85);
   box-shadow: 0 4px 20px rgba(212, 165, 116, 0.1);
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
@@ -11,6 +11,9 @@
   will-change: transform;
   transform: translateZ(0);
   backface-visibility: hidden;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 }
 
 /* 自分の書き初めのハイライト */
@@ -141,15 +144,15 @@
 }
 
 .card-content {
-  font-size: 1.75rem;
+  font-size: 1.4rem;
   font-weight: 500;
   margin-bottom: 1rem;
   color: var(--color-sumi);
-  line-height: 1.8;
-  letter-spacing: 0.1em;
+  line-height: 1.7;
+  letter-spacing: 0.05em;
   position: relative;
-  padding: 1rem 0;
-  min-height: 3rem;
+  padding: 0.75rem 0;
+  min-height: 2.5rem;
   white-space: pre-wrap;
   word-wrap: break-word;
   overflow: hidden;
@@ -158,6 +161,7 @@
   -webkit-line-clamp: 5;
   line-clamp: 5;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  flex-grow: 1;
 }
 
 .card-content.expanded {
@@ -172,9 +176,10 @@
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
-  width: 60%;
+  width: 50%;
   height: 1px;
   background: linear-gradient(90deg, transparent, var(--color-gold), transparent);
+  opacity: 0.7;
 }
 
 .card-content::before {
@@ -189,9 +194,10 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 0.95rem;
+  font-size: 0.85rem;
   color: var(--color-sumi-light);
-  padding-top: 1rem;
+  padding-top: 0.75rem;
+  margin-top: auto;
   border-top: 1px solid rgba(212, 165, 116, 0.2);
 }
 
@@ -220,19 +226,17 @@
 
 @media (max-width: 768px) {
   .calligraphy-card {
-    padding: 1.5rem;
+    padding: 1.25rem;
   }
 
   .card-content {
-    font-size: 1.4rem;
-    margin-bottom: 1rem;
+    font-size: 1.3rem;
+    margin-bottom: 0.75rem;
+    line-height: 1.6;
   }
 
   .card-footer {
-    font-size: 0.85rem;
-    flex-direction: column;
-    gap: 0.5rem;
-    align-items: flex-start;
+    font-size: 0.8rem;
   }
 
   .user-name {
@@ -240,7 +244,17 @@
   }
 
   .timestamp {
-    font-size: 0.75rem;
-    padding-left: 1rem;
+    font-size: 0.7rem;
+  }
+
+  .expand-button {
+    padding: 0.4rem 1.2rem;
+    font-size: 0.85rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .card-content {
+    font-size: 1.2rem;
   }
 }
