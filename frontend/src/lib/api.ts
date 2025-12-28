@@ -1,12 +1,14 @@
 // 型定義 (API仕様書準拠)
 export interface Calligraphy {
 	user_id: string;
+	user_name: string;
 	content: string;
 	created_at: string;
 	updated_at: string;
 }
 
 export interface CreateCalligraphyRequest {
+	user_name: string;
 	content: string;
 }
 

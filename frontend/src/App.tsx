@@ -44,6 +44,16 @@ function App() {
 				<form onSubmit={handleSubmit(onSubmit)}>
 					<input
 						type="text"
+						placeholder="名前"
+						{...register('user_name', {
+							required: '名前を入力してください',
+							maxLength: { value: 20, message: '20文字以内で入力してください' }
+						})}
+						className="input-text"
+						style={{ marginBottom: '0.5rem' }}
+					/>
+					<input
+						type="text"
 						placeholder="今年の抱負 (50文字以内)"
 						{...register('content', {
 							required: '入力してください',
@@ -55,6 +65,7 @@ function App() {
 						{mutation.isPending ? '奉納中...' : '奉納する'}
 					</button>
 				</form>
+				{errors.user_name && <p className="error">{errors.user_name.message}</p>}
 				{errors.content && <p className="error">{errors.content.message}</p>}
 			</section>
 
@@ -69,6 +80,7 @@ function App() {
 							{/* ID情報などを意識せず、純粋に内容だけを表示 */}
 							<div className="card-content">{item.content}</div>
 							<div className="card-footer">
+								<span className="user-name">{item.user_name}</span>
 								<small>{new Date(item.updated_at).toLocaleString()}</small>
 							</div>
 						</div>
