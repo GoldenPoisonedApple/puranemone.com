@@ -10,6 +10,7 @@ use crate::{
 /// フロントから受け取る書き初め作成・更新用のリクエストボディ
 #[derive(Deserialize)]
 pub struct CreateCalligraphyRequest {
+	pub user_name: String,
   pub content: String,
 }
 
@@ -21,7 +22,7 @@ pub async fn upsert<R: CalligraphyRepositoryTrait>(
   auth_user: AuthUser,
   Json(payload): Json<CreateCalligraphyRequest>,
 ) -> Result<impl IntoResponse, AppError> {
-  let calligraphy = service.upsert(auth_user.id, payload.content).await?;
+  let calligraphy = service.upsert(auth_user.id, payload.user_name, payload.content).await?;
   Ok((StatusCode::OK, Json(calligraphy)))
 }
 
@@ -64,10 +65,12 @@ mod tests {
   async fn test_upsert_handler() {
     let mut mock_repo = MockCalligraphyRepositoryTrait::new();
     let user_id = Uuid::new_v4();
+		let user_name = "テストユーザー".to_string();
     let content = "Test Content".to_string();
 
     let expected_calligraphy = Calligraphy {
       user_id,
+			user_name: user_name.clone(),
       content: content.clone(),
       created_at: OffsetDateTime::now_utc(),
       updated_at: OffsetDateTime::now_utc(),
@@ -78,16 +81,16 @@ mod tests {
       .expect_create()
       .with(
         mockall::predicate::eq(user_id),
+				mockall::predicate::eq(user_name.clone()),
         mockall::predicate::eq(content.clone()),
       )
       .times(1)
-      .returning(move |_, _| Ok(returned_calligraphy.clone()));
+      .returning(move |_, _, _| Ok(returned_calligraphy.clone()));
 
     let service = CalligraphyService::new(mock_repo);
     let state = State(service);
     let auth_user = AuthUser { id: user_id };
-    let payload = Json(CreateCalligraphyRequest { content });
-
+    let payload = Json(CreateCalligraphyRequest { user_name, content });
     let response = upsert(state, auth_user, payload).await;
 
     assert!(response.is_ok());
@@ -98,10 +101,12 @@ mod tests {
   async fn test_list_handler() {
     let mut mock_repo = MockCalligraphyRepositoryTrait::new();
     let user_id = Uuid::new_v4();
+		let user_name = "テストユーザー".to_string();
     let content = "List Item".to_string();
 
     let expected_calligraphy = Calligraphy {
       user_id,
+			user_name: user_name.clone(),
       content: content.clone(),
       created_at: OffsetDateTime::now_utc(),
       updated_at: OffsetDateTime::now_utc(),
@@ -125,10 +130,12 @@ mod tests {
   async fn test_get_handler() {
     let mut mock_repo = MockCalligraphyRepositoryTrait::new();
     let user_id = Uuid::new_v4();
+		let user_name = "テストユーザー".to_string();
     let content = "Get Item".to_string();
 
     let expected_calligraphy = Calligraphy {
       user_id,
+			user_name: user_name.clone(),
       content: content.clone(),
       created_at: OffsetDateTime::now_utc(),
       updated_at: OffsetDateTime::now_utc(),

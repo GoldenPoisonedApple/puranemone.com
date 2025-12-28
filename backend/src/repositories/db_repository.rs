@@ -6,7 +6,7 @@ use uuid::Uuid;
 #[cfg_attr(test, mockall::automock)]
 #[async_trait] // 非同期関数を含むトレイト用のマクロ
 pub trait CalligraphyRepositoryTrait: Send + Sync {
-  async fn create(&self, user_id: Uuid, content: String) -> Result<Calligraphy, sqlx::Error>;
+  async fn create(&self, user_id: Uuid, user_name: String, content: String) -> Result<Calligraphy, sqlx::Error>;
   async fn find_by_id(&self, user_id: Uuid) -> Result<Option<Calligraphy>, sqlx::Error>;
   async fn find_all(&self) -> Result<Vec<Calligraphy>, sqlx::Error>;
   async fn delete(&self, user_id: Uuid) -> Result<u64, sqlx::Error>;
@@ -32,26 +32,28 @@ impl CalligraphyRepositoryTrait for CalligraphyRepository {
   ///
   /// # 引数
   /// * `user_id` - Cookie等から特定されたユーザーID (信頼できる値)
+	/// * `user_name` - ユーザー名 (表示用)
   /// * `content` - ユーザー入力内容
   ///
   /// # 戻り値
   /// * `Ok(Calligraphy)` - DBにより生成されたタイムスタンプを含む完全なモデル
-  async fn create(&self, user_id: Uuid, content: String) -> Result<Calligraphy, sqlx::Error> {
+  async fn create(&self, user_id: Uuid, user_name: String, content: String) -> Result<Calligraphy, sqlx::Error> {
     // query_as! マクロ:
     // コンパイル時にSQL構文と、戻り値(Calligraphy構造体)の型整合性をチェックする。
     // フィールド名とカラム名が完全に一致している必要がある。
     sqlx::query_as!(
       Calligraphy,
       r#"
-						INSERT INTO calligraphy (user_id, content, updated_at)
-						VALUES ($1, $2, NOW())
+						INSERT INTO calligraphy (user_id, user_name, content, updated_at)
+						VALUES ($1, $2, $3, NOW())
 						ON CONFLICT (user_id)
 						DO UPDATE SET	-- 重複時は内容を上書き
 								content = EXCLUDED.content,
 								updated_at = NOW()
-						RETURNING user_id, content, created_at, updated_at
+						RETURNING user_id, user_name, content, created_at, updated_at
 						"#,
       user_id,
+      user_name,
       content,
     )
     .fetch_one(&self.pool)
@@ -65,7 +67,7 @@ impl CalligraphyRepositoryTrait for CalligraphyRepository {
     sqlx::query_as!(
       Calligraphy,
       r#"
-						SELECT user_id, content, created_at, updated_at
+						SELECT user_id, user_name, content, created_at, updated_at
 						FROM calligraphy
 						WHERE user_id = $1
 						"#,
@@ -82,7 +84,7 @@ impl CalligraphyRepositoryTrait for CalligraphyRepository {
     sqlx::query_as!(
       Calligraphy,
       r#"
-            SELECT user_id, content, created_at, updated_at
+            SELECT user_id, user_name, content, created_at, updated_at
             FROM calligraphy
             ORDER BY created_at DESC
             LIMIT 100 -- 安全のため上限を設定（必要に応じてページネーションに変更）
@@ -133,14 +135,17 @@ mod tests {
     let user_id = Uuid::new_v4();
     let content_1 = "今年の抱負：早起き";
     let content_2 = "今年の抱負：やっぱり筋トレ";
+		let user_name = "テストユーザー".to_string();
+
 
     // --- Test A: 新規作成 (Create/Upsert) ---
     let created = repository
-      .create(user_id, content_1.to_string())
+      .create(user_id, user_name.clone(), content_1.to_string())
       .await
       .expect("Failed to create calligraphy");
 
     assert_eq!(created.user_id, user_id);
+		assert_eq!(created.user_name, user_name);
     assert_eq!(created.content, content_1);
     println!("Test A Passed: Created successfully");
 
@@ -151,12 +156,13 @@ mod tests {
       .expect("Failed to find calligraphy")
       .expect("Calligraphy not found"); // Option unwrapping
 
+    assert_eq!(found.user_name, user_name);
     assert_eq!(found.content, content_1);
     println!("Test B Passed: Found by ID");
 
     // --- Test C: 更新確認 (Upsert Update) ---
     let updated = repository
-      .create(user_id, content_2.to_string())
+      .create(user_id, user_name.clone(), content_2.to_string())
       .await
       .expect("Failed to update calligraphy");
 
@@ -173,6 +179,7 @@ mod tests {
     // 自分のデータが含まれているか確認
     let my_data = list.iter().find(|c| c.user_id == user_id);
     assert!(my_data.is_some());
+		assert_eq!(my_data.unwrap().user_name, user_name);
     assert_eq!(my_data.unwrap().content, content_2); // 最新の内容であること
     println!("Test D Passed: Found in list");
 

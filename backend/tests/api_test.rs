@@ -28,7 +28,7 @@ async fn test_calligraphy_scenario() {
         .method("POST")
         .uri("/api/calligraphy")
         .header("Content-Type", "application/json")
-        .body(Body::from(r#"{"content": "Integration Test Scenario"}"#))
+        .body(Body::from(r#"{ "user_name": "Test User", "content": "Integration Test Scenario"}"#))
         .unwrap(),
     )
     .await
@@ -43,6 +43,7 @@ async fn test_calligraphy_scenario() {
   let body = response.into_body().collect().await.unwrap().to_bytes();
   let created_json: serde_json::Value = serde_json::from_slice(&body).unwrap();
   let created_id = created_json["user_id"].as_str().unwrap();
+	assert_eq!(created_json["user_name"], "Test User");
   assert_eq!(created_json["content"], "Integration Test Scenario");
 
   println!("Step 1: Created with ID: {}", created_id);
@@ -68,6 +69,7 @@ async fn test_calligraphy_scenario() {
   let body = response.into_body().collect().await.unwrap().to_bytes();
   let fetched_json: serde_json::Value = serde_json::from_slice(&body).unwrap();
   assert_eq!(fetched_json["content"], "Integration Test Scenario");
+	assert_eq!(fetched_json["user_name"], "Test User");
   assert_eq!(fetched_json["user_id"], created_id);
 
   println!("Step 2: Fetched successfully");
