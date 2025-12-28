@@ -99,7 +99,7 @@
 }
 
 .modal-title {
-  font-family: "Yu Mincho", "游明朝", serif;
+  font-family: var(--font-family-mincho);
   font-size: 2rem;
   font-weight: 500;
   color: var(--color-sumi);
@@ -141,7 +141,7 @@
 }
 
 .modal-label {
-  font-family: "Yu Mincho", "游明朝", serif;
+  font-family: var(--font-family-mincho);
   font-size: 1rem;
   font-weight: 500;
   color: var(--color-sumi);
@@ -154,7 +154,7 @@
   width: 100%;
   padding: 1rem 1.5rem;
   font-size: 1.1rem;
-  font-family: "Yu Mincho", "游明朝", serif;
+  font-family: var(--font-family-mincho);
   border: 2px solid var(--color-gold);
   background: rgba(255, 255, 255, 0.9);
   color: var(--color-sumi);
@@ -211,7 +211,7 @@
 .modal-button {
   padding: 1rem 2rem;
   font-size: 1rem;
-  font-family: "Yu Mincho", "游明朝", serif;
+  font-family: var(--font-family-mincho);
   font-weight: 500;
   letter-spacing: 0.2em;
   border: 2px solid var(--color-gold);

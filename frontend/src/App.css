@@ -2,7 +2,7 @@
   max-width: 1600px;
   margin: 0 auto;
   padding: 3rem 2rem;
-  font-family: "Yu Mincho", "游明朝", serif;
+  font-family: var(--font-family-mincho);
   text-align: center;
   opacity: 0;
   transform: translateY(20px);

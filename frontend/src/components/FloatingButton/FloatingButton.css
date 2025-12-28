@@ -13,7 +13,7 @@
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  font-family: "Yu Mincho", "游明朝", serif;
+  font-family: var(--font-family-mincho);
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), 
               box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow: 0 8px 32px rgba(212, 165, 116, 0.3);

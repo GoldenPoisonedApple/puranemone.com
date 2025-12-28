@@ -18,6 +18,9 @@
   --color-aka-light: #EF5350;
   --color-aka-pale: #FFEBEE;
   
+  /* フォント設定 */
+  --font-family-mincho: "Yu Mincho", "游明朝", "YuMincho", serif;
+  
   color: var(--color-sumi);
   background: linear-gradient(135deg, var(--color-washi) 0%, var(--color-bg) 100%);
   
@@ -79,7 +82,7 @@ button {
   padding: 0.8em 2em;
   font-size: 1em;
   font-weight: 500;
-  font-family: "Yu Mincho", "游明朝", serif;
+  font-family: var(--font-family-mincho);
   background-color: transparent;
   color: var(--color-sumi);
   cursor: pointer;

@@ -54,7 +54,7 @@
 }
 
 .opening-title {
-  font-family: "Yu Mincho", "游明朝", serif;
+  font-family: var(--font-family-mincho);
   font-size: 4rem;
   font-weight: 500;
   color: #1F2937;
@@ -65,7 +65,7 @@
 }
 
 .opening-year {
-  font-family: "Yu Mincho", "游明朝", serif;
+  font-family: var(--font-family-mincho);
   font-size: 1.2rem;
   color: #4B5563;
   margin: 1.5rem 0 0.5rem;
@@ -74,7 +74,7 @@
 }
 
 .opening-subtitle {
-  font-family: "Yu Mincho", "游明朝", serif;
+  font-family: var(--font-family-mincho);
   font-size: 1rem;
   color: #6B7280;
   margin: 0;
