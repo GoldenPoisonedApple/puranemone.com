@@ -7,7 +7,9 @@ interface CalligraphyModalProps {
 	isOpen: boolean;
 	onClose: () => void;
 	onSubmit: (data: CreateCalligraphyRequest) => void;
+	onDelete?: () => void;
 	isSubmitting: boolean;
+	isDeleting?: boolean;
 	initialData?: CreateCalligraphyRequest;
 	isEdit: boolean;
 }
@@ -19,7 +21,9 @@ export const CalligraphyModal = ({
 	isOpen, 
 	onClose, 
 	onSubmit, 
+	onDelete,
 	isSubmitting,
+	isDeleting = false,
 	initialData,
 	isEdit 
 }: CalligraphyModalProps) => {
@@ -116,20 +120,32 @@ export const CalligraphyModal = ({
 					</div>
 
 					<div className="modal-actions">
-						<button 
-							type="button" 
-							onClick={onClose}
-							className="modal-button modal-button-cancel"
-						>
-							キャンセル
-						</button>
-						<button 
-							type="submit" 
-							disabled={isSubmitting}
-							className="modal-button modal-button-submit"
-						>
-							{isSubmitting ? '保存中...' : isEdit ? '更新する' : '奉納する'}
-						</button>
+						{isEdit && onDelete && (
+							<button 
+								type="button" 
+								onClick={onDelete}
+								disabled={isDeleting}
+								className="modal-button modal-button-delete"
+							>
+								{isDeleting ? '削除中...' : '削除する'}
+							</button>
+						)}
+						<div className="modal-actions-right">
+							<button 
+								type="button" 
+								onClick={onClose}
+								className="modal-button modal-button-cancel"
+							>
+								キャンセル
+							</button>
+							<button 
+								type="submit" 
+								disabled={isSubmitting}
+								className="modal-button modal-button-submit"
+							>
+								{isSubmitting ? '保存中...' : isEdit ? '更新する' : '奉納する'}
+							</button>
+						</div>
 					</div>
 				</form>
 			</div>

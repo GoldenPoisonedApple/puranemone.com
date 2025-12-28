@@ -3,6 +3,17 @@ import { calligraphyApi } from './api';
 import type { CreateCalligraphyRequest } from '../types/calligraphy';
 
 /**
+ * 自分の書き初めを取得するカスタムフック
+ */
+export const useMyCalligraphy = () => {
+	return useQuery({
+		queryKey: ['calligraphy', 'mine'],
+		queryFn: calligraphyApi.get,
+		retry: false, // 404の場合はリトライしない
+	});
+};
+
+/**
  * 書き初め投稿用カスタムフック
  */
 export const useCalligraphySubmit = (onSuccess?: () => void, onError?: (error: Error) => void) => {
@@ -26,6 +37,29 @@ export const useCalligraphySubmit = (onSuccess?: () => void, onError?: (error: E
 	return {
 		submit,
 		isSubmitting: mutation.isPending,
+	};
+};
+
+/**
+ * 書き初め削除用カスタムフック
+ */
+export const useCalligraphyDelete = (onSuccess?: () => void, onError?: (error: Error) => void) => {
+	const queryClient = useQueryClient();
+
+	const mutation = useMutation({
+		mutationFn: calligraphyApi.delete,
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: ['calligraphy'] });
+			onSuccess?.();
+		},
+		onError: (error: Error) => {
+			onError?.(error);
+		},
+	});
+
+	return {
+		deleteCalligraphy: mutation.mutate,
+		isDeleting: mutation.isPending,
 	};
 };
 

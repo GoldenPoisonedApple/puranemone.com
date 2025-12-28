@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { calligraphyApi } from './lib/api';
-import { useCalligraphySubmit } from './lib/hooks';
+import { useMyCalligraphy, useCalligraphySubmit, useCalligraphyDelete } from './lib/hooks';
 import { Opening } from './components/Opening';
 import { FloatingButton } from './components/FloatingButton';
 import { CalligraphyModal } from './components/CalligraphyModal';
@@ -17,15 +17,14 @@ function App() {
 	const [showContent, setShowContent] = useState(false);
 	const [isModalOpen, setIsModalOpen] = useState(false);
 
-	// データ取得
+	// 全ての書き初め一覧を取得
 	const { data: list, isLoading, error } = useQuery({
 		queryKey: ['calligraphy', 'list'],
 		queryFn: calligraphyApi.list,
 	});
 
-	// 自分の書き初めを探す（最初の1件を自分のものとして扱う）
-	// 実際にはuser_idで判定するが、Cookieベースなので最初の投稿が自分のもの
-	const myCalligraphy = list?.[0];
+	// 自分の書き初めを取得
+	const { data: myCalligraphy, error: myError } = useMyCalligraphy();
 
 	// フォーム送信
 	const { submit, isSubmitting } = useCalligraphySubmit(
@@ -37,8 +36,25 @@ function App() {
 		}
 	);
 
+	// 削除
+	const { deleteCalligraphy, isDeleting } = useCalligraphyDelete(
+		() => {
+			console.log('書き初めを削除しました');
+		},
+		(err) => {
+			console.error('書き初めの削除に失敗しました:', err);
+		}
+	);
+
 	const handleSubmit = (data: CreateCalligraphyRequest) => {
 		submit(data);
+	};
+
+	const handleDelete = () => {
+		if (window.confirm('書き初めを削除してもよろしいですか？')) {
+			deleteCalligraphy();
+			setIsModalOpen(false);
+		}
 	};
 
 	const handleOpeningComplete = () => {
@@ -74,11 +90,11 @@ function App() {
 					)}
 
 					<div className="card-grid">
-						{list?.map((item, index) => (
+						{list?.map((item) => (
 							<CalligraphyCard 
 								key={item.user_id} 
 								calligraphy={item} 
-								isMine={index === 0}
+								isMine={myCalligraphy?.user_id === item.user_id}
 							/>
 						))}
 					</div>
@@ -93,7 +109,9 @@ function App() {
 				isOpen={isModalOpen}
 				onClose={handleCloseModal}
 				onSubmit={handleSubmit}
+				onDelete={myCalligraphy ? handleDelete : undefined}
 				isSubmitting={isSubmitting}
+				isDeleting={isDeleting}
 				initialData={myCalligraphy ? {
 					user_name: myCalligraphy.user_name,
 					content: myCalligraphy.content
