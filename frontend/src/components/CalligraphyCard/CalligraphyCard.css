@@ -1,37 +1,142 @@
 .calligraphy-card {
-  border: 1px solid #d1d5db;
-  border-radius: 0.5rem;
-  padding: 1.5rem;
-  background: white;
-  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  transition: box-shadow 0.2s;
+  border: 2px solid var(--color-gold);
+  padding: 2rem;
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 20px rgba(212, 165, 116, 0.1);
+  transition: all 0.4s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.calligraphy-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, transparent 0%, rgba(212, 165, 116, 0.05) 100%);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  pointer-events: none;
 }
 
 .calligraphy-card:hover {
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 8px 32px rgba(212, 165, 116, 0.2);
+  transform: translateY(-4px);
+  border-color: var(--color-gold-light);
+}
+
+.calligraphy-card:hover::before {
+  opacity: 1;
+}
+
+/* 装飾的なコーナー */
+.calligraphy-card::after {
+  content: '';
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 30px;
+  height: 30px;
+  border-top: 2px solid var(--color-gold);
+  border-right: 2px solid var(--color-gold);
+  opacity: 0.3;
+  transition: opacity 0.4s ease;
+}
+
+.calligraphy-card:hover::after {
+  opacity: 0.6;
 }
 
 .card-content {
-  font-size: 1.5rem;
-  font-weight: bold;
-  margin-bottom: 0.75rem;
-  color: #1f2937;
+  font-size: 1.75rem;
+  font-weight: 500;
+  margin-bottom: 1.5rem;
+  color: var(--color-sumi);
+  line-height: 1.8;
+  letter-spacing: 0.1em;
+  position: relative;
+  padding: 1rem 0;
+  min-height: 3rem;
+}
+
+.card-content::before,
+.card-content::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--color-gold), transparent);
+}
+
+.card-content::before {
+  top: 0;
+}
+
+.card-content::after {
+  bottom: 0;
 }
 
 .card-footer {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 0.875rem;
-  color: #4b5563;
+  font-size: 0.95rem;
+  color: var(--color-sumi-light);
+  padding-top: 1rem;
+  border-top: 1px solid rgba(212, 165, 116, 0.2);
 }
 
 .user-name {
   font-weight: 500;
+  letter-spacing: 0.1em;
+  color: var(--color-sumi);
+  position: relative;
+  padding-left: 1.2rem;
+}
+
+.user-name::before {
+  content: '✿';
+  position: absolute;
+  left: 0;
+  color: var(--color-gold);
+  font-size: 0.9em;
 }
 
 .timestamp {
-  color: #6b7280;
-  font-size: 0.75rem;
+  color: var(--color-sumi-light);
+  font-size: 0.85rem;
+  letter-spacing: 0.05em;
+  opacity: 0.8;
 }
 
+@media (max-width: 768px) {
+  .calligraphy-card {
+    padding: 1.5rem;
+  }
+
+  .card-content {
+    font-size: 1.4rem;
+    margin-bottom: 1rem;
+  }
+
+  .card-footer {
+    font-size: 0.85rem;
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: flex-start;
+  }
+
+  .user-name {
+    padding-left: 1rem;
+  }
+
+  .timestamp {
+    font-size: 0.75rem;
+    padding-left: 1rem;
+  }
+}

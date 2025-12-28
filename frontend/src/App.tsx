@@ -48,7 +48,7 @@ function App() {
 			{showOpening && <Opening onComplete={handleOpeningComplete} />}
 			
 			<div className={`app ${showContent ? 'show' : ''}`}>
-				<h1>書き初めアプリ 🎍</h1>
+				<h1>書き初め</h1>
 
 				{/* 投稿フォーム */}
 				<CalligraphyForm onSubmit={handleSubmit} isSubmitting={isSubmitting} />
