@@ -1,0 +1,28 @@
+// .devcontainer/devcontainer.json
+{
+	"name": "Puranemone Backend Dev",
+	"dockerComposeFile": [
+		"../docker-compose.yaml",
+		"../compose.yaml" // 必要に応じてoverrideファイルも指定
+	],
+	"service": "backend", // docker-compose.yaml 内のサービス名
+	"workspaceFolder": "/app", // コンテナ内の作業ディレクトリ
+
+	// VS Code接続時にコンテナ内にインストールする拡張機能
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"rust-lang.rust-analyzer",
+				"tamasfe.even-better-toml",
+				"vadimcn.vscode-lldb" // デバッガ
+			]
+		}
+	},
+
+	// コンテナ作成後の自動実行コマンド（必要なら）
+	// "postCreateCommand": "cargo build",
+	"postCreateCommand": "rustup component add rustfmt",
+
+	// ユーザー設定（rootではなくvscodeユーザーを使う場合など設定）
+	"remoteUser": "root"
+}

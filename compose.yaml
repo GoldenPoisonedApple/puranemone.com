@@ -27,6 +27,7 @@ services:
     restart: unless-stopped
     volumes:
       - ./db-data:/var/lib/postgresql/data
+      - ./setup.sql:/docker-entrypoint-initdb.d/setup.sql:ro    # 初回起動時にDBをセットアップするSQLファイル
     environment:
       - POSTGRES_USER=${DB_USER}
       - POSTGRES_PASSWORD=${DB_PASSWORD}
