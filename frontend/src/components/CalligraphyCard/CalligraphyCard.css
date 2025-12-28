@@ -110,6 +110,29 @@
   text-align: left;
 }
 
+/* 5行未満の場合は中央揃え */
+.calligraphy-card.centered-content .card-content {
+  display: flex;
+  align-items: center;
+  text-align: left;
+}
+
+/* 筆のアイコン（右下） */
+.pen-icon {
+  position: absolute;
+  bottom: 0.75rem;
+  right: 0.75rem;
+  width: 24px;
+  height: 24px;
+  opacity: 0.3;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.calligraphy-card:hover .pen-icon {
+  opacity: 0.5;
+}
+
 /* スクロールバーのスタイリング */
 .card-content::-webkit-scrollbar {
   width: 8px;
@@ -188,6 +211,13 @@
   .user-name {
     font-size: 0.85rem;
   }
+
+  .pen-icon {
+    width: 20px;
+    height: 20px;
+    bottom: 0.5rem;
+    right: 0.5rem;
+  }
 }
 
 @media (max-width: 480px) {
@@ -208,5 +238,12 @@
 
   .user-name {
     font-size: 0.8rem;
+  }
+
+  .pen-icon {
+    width: 18px;
+    height: 18px;
+    bottom: 0.5rem;
+    right: 0.5rem;
   }
 }
