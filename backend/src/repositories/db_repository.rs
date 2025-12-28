@@ -48,6 +48,7 @@ impl CalligraphyRepositoryTrait for CalligraphyRepository {
 						VALUES ($1, $2, $3, NOW())
 						ON CONFLICT (user_id)
 						DO UPDATE SET	-- 重複時は内容を上書き
+								user_name = EXCLUDED.user_name,
 								content = EXCLUDED.content,
 								updated_at = NOW()
 						RETURNING user_id, user_name, content, created_at, updated_at
@@ -135,17 +136,18 @@ mod tests {
     let user_id = Uuid::new_v4();
     let content_1 = "今年の抱負：早起き";
     let content_2 = "今年の抱負：やっぱり筋トレ";
-		let user_name = "テストユーザー".to_string();
+		let user_name_1 = "テストユーザー".to_string();
+		let user_name_2 = "更新ユーザー".to_string();
 
 
     // --- Test A: 新規作成 (Create/Upsert) ---
     let created = repository
-      .create(user_id, user_name.clone(), content_1.to_string())
+      .create(user_id, user_name_1.clone(), content_1.to_string())
       .await
       .expect("Failed to create calligraphy");
 
     assert_eq!(created.user_id, user_id);
-		assert_eq!(created.user_name, user_name);
+		assert_eq!(created.user_name, user_name_1);
     assert_eq!(created.content, content_1);
     println!("Test A Passed: Created successfully");
 
@@ -156,16 +158,18 @@ mod tests {
       .expect("Failed to find calligraphy")
       .expect("Calligraphy not found"); // Option unwrapping
 
-    assert_eq!(found.user_name, user_name);
+    assert_eq!(found.user_name, user_name_1);
     assert_eq!(found.content, content_1);
     println!("Test B Passed: Found by ID");
 
     // --- Test C: 更新確認 (Upsert Update) ---
     let updated = repository
-      .create(user_id, user_name.clone(), content_2.to_string())
+      .create(user_id, user_name_2.clone(), content_2.to_string())
       .await
       .expect("Failed to update calligraphy");
 
+		assert_eq!(updated.user_id, user_id);
+    assert_eq!(updated.user_name, user_name_2);
     assert_eq!(updated.content, content_2);
     assert!(
       updated.updated_at > created.updated_at,
@@ -179,7 +183,7 @@ mod tests {
     // 自分のデータが含まれているか確認
     let my_data = list.iter().find(|c| c.user_id == user_id);
     assert!(my_data.is_some());
-		assert_eq!(my_data.unwrap().user_name, user_name);
+		assert_eq!(my_data.unwrap().user_name, user_name_2);
     assert_eq!(my_data.unwrap().content, content_2); // 最新の内容であること
     println!("Test D Passed: Found in list");
 
