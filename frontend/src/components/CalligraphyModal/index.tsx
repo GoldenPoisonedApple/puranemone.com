@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
+import { CharacterCounter } from '../CharacterCounter';
 import type { CreateCalligraphyRequest } from '../../types/calligraphy';
 import './CalligraphyModal.css';
 
@@ -27,9 +28,13 @@ export const CalligraphyModal = ({
 	initialData,
 	isEdit 
 }: CalligraphyModalProps) => {
-	const { register, handleSubmit, formState: { errors }, reset } = useForm<CreateCalligraphyRequest>({
+	const { register, handleSubmit, formState: { errors }, reset, watch } = useForm<CreateCalligraphyRequest>({
 		defaultValues: initialData
 	});
+	
+	// 文字数をリアルタイムで監視
+	const contentValue = watch('content', '');
+	const contentLength = contentValue?.length || 0;
 
 	// モーダルが開いたら初期データをセット
 	useEffect(() => {
@@ -101,9 +106,12 @@ export const CalligraphyModal = ({
 					</div>
 
 					<div className="modal-form-group">
-						<label htmlFor="content" className="modal-label">
-							今年の抱負
-						</label>
+						<div className="modal-label-row">
+							<label htmlFor="content" className="modal-label">
+								今年の抱負
+							</label>
+							<CharacterCounter current={contentLength} max={50} />
+						</div>
 						<textarea
 							id="content"
 							placeholder="今年の抱負を入力（50文字以内）"

@@ -16,7 +16,7 @@
 /* 自分の書き初めのハイライト */
 .calligraphy-card.my-card {
   border: 3px solid var(--color-aka);
-  background: linear-gradient(135deg, var(--color-aka-pale) 0%, rgba(255, 255, 255, 0.95) 100%);
+  background: rgba(255, 255, 255, 0.85);
   box-shadow: 0 6px 30px rgba(255, 180, 200, 0.25);
 }
 
@@ -36,6 +36,50 @@
 
 .calligraphy-card.clickable:active {
   transform: translateY(-2px) translateZ(0);
+}
+
+.expand-button {
+  background: transparent;
+  border: 1px solid var(--color-gold);
+  color: var(--color-sumi-light);
+  padding: 0.5rem 1.5rem;
+  font-size: 0.9rem;
+  font-family: "Yu Mincho", "游明朝", serif;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  margin-bottom: 1rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.expand-button::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(212, 165, 116, 0.1);
+  transform: translate(-50%, -50%) translateZ(0);
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1), 
+              height 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: -1;
+}
+
+.expand-button:hover {
+  border-color: var(--color-gold);
+  color: var(--color-sumi);
+}
+
+.expand-button:hover::before {
+  width: 200px;
+  height: 200px;
+}
+
+.expand-button:active {
+  transform: scale(0.98);
 }
 
 .calligraphy-card::before {
@@ -99,13 +143,27 @@
 .card-content {
   font-size: 1.75rem;
   font-weight: 500;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
   color: var(--color-sumi);
   line-height: 1.8;
   letter-spacing: 0.1em;
   position: relative;
   padding: 1rem 0;
   min-height: 3rem;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 5;
+  line-clamp: 5;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card-content.expanded {
+  -webkit-line-clamp: unset;
+  line-clamp: unset;
+  display: block;
 }
 
 .card-content::before,

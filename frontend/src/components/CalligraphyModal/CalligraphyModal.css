@@ -134,6 +134,12 @@
   gap: 0.5rem;
 }
 
+.modal-label-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
 .modal-label {
   font-family: "Yu Mincho", "游明朝", serif;
   font-size: 1rem;
