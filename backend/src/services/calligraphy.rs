@@ -17,16 +17,26 @@ impl<R: CalligraphyRepositoryTrait> CalligraphyService<R> {
 
   /// 書き初めを作成・更新する
   /// 文字数制限などのビジネスルールがあればここで検証する
-  pub async fn upsert(&self, user_id: Uuid, content: String) -> Result<Calligraphy, AppError> {
+  pub async fn upsert(
+    &self,
+    user_id: Uuid,
+    user_name: String,
+    content: String,
+  ) -> Result<Calligraphy, AppError> {
     // バリデーション例 (DBのCHECK制約もあるが、アプリ側でも弾く場合)
     if content.chars().count() > 50 {
       return Err(AppError::Validation(
         "Content must be 50 chars or less".to_string(),
       ));
     }
+    if user_name.chars().count() > 20 {
+      return Err(AppError::Validation(
+        "User name must be 30 chars or less".to_string(),
+      ));
+    }
 
     // Repositoryの呼び出し。
-    let calligraphy = self.repository.create(user_id, content).await?;
+    let calligraphy = self.repository.create(user_id, user_name, content).await?;
     Ok(calligraphy)
   }
 
@@ -65,14 +75,16 @@ mod tests {
   use crate::repositories::db_repository::MockCalligraphyRepositoryTrait;
   use time::OffsetDateTime;
 
-	/// 書き初めサービスの単体テスト
+  /// 書き初めサービスの単体テスト
   #[tokio::test]
   async fn test_upsert_success() {
     let mut mock_repo = MockCalligraphyRepositoryTrait::new();
     let user_id = Uuid::new_v4();
+    let user_name = "テストユーザー".to_string();
     let content = "Happy New Year".to_string();
     let expected_calligraphy = Calligraphy {
       user_id,
+      user_name: user_name.clone(),
       content: content.clone(),
       created_at: OffsetDateTime::now_utc(),
       updated_at: OffsetDateTime::now_utc(),
@@ -83,39 +95,58 @@ mod tests {
       .expect_create()
       .with(
         mockall::predicate::eq(user_id),
+        mockall::predicate::eq(user_name.clone()),
         mockall::predicate::eq(content.clone()),
       )
       .times(1)
-      .returning(move |_, _| Ok(returned_calligraphy.clone()));
-
+      .returning(move |_, _, _| Ok(returned_calligraphy.clone()));
     let service = CalligraphyService::new(mock_repo);
-    let result = service.upsert(user_id, content).await;
+    let result = service.upsert(user_id, user_name.clone(), content).await;
 
     assert!(result.is_ok());
+    assert_eq!(result.as_ref().unwrap().user_name, user_name);
     assert_eq!(result.unwrap().content, "Happy New Year");
   }
 
-	/// 書き込み バリデーションエラーのテスト
+  /// 書き込み バリデーションエラーのテスト
   #[tokio::test]
   async fn test_upsert_validation_error() {
     let mock_repo = MockCalligraphyRepositoryTrait::new();
     let service = CalligraphyService::new(mock_repo);
     let user_id = Uuid::new_v4();
     let long_content = "a".repeat(51);
+    let user_name = "テストユーザー".to_string();
 
-    let result = service.upsert(user_id, long_content).await;
+    let result = service.upsert(user_id, user_name, long_content).await;
 
     assert!(matches!(result, Err(AppError::Validation(_))));
   }
 
-	/// ID取得 成功のテスト
+  /// 書き込み ユーザー名バリデーションエラーのテスト
+  #[tokio::test]
+  async fn test_upsert_username_validation_error() {
+    let mock_repo = MockCalligraphyRepositoryTrait::new();
+    let service = CalligraphyService::new(mock_repo);
+    let user_id = Uuid::new_v4();
+    let content = "Valid content".to_string();
+    let long_user_name = "a".repeat(21);
+
+    let result = service.upsert(user_id, long_user_name, content).await;
+
+    assert!(matches!(result, Err(AppError::Validation(_))));
+  }
+
+  /// ID取得 成功のテスト
   #[tokio::test]
   async fn test_get_found() {
     let mut mock_repo = MockCalligraphyRepositoryTrait::new();
     let user_id = Uuid::new_v4();
+    let user_name = "テストユーザー".to_string();
+    let content = "Found".to_string();
     let expected_calligraphy = Calligraphy {
       user_id,
-      content: "Found".to_string(),
+      user_name: user_name.clone(),
+      content: content.clone(),
       created_at: OffsetDateTime::now_utc(),
       updated_at: OffsetDateTime::now_utc(),
     };
@@ -131,10 +162,11 @@ mod tests {
     let result = service.get(user_id).await;
 
     assert!(result.is_ok());
-    assert_eq!(result.unwrap().content, "Found");
+    assert_eq!(result.as_ref().unwrap().user_name, user_name);
+    assert_eq!(result.unwrap().content, content);
   }
 
-	/// ID取得 NotFoundエラーのテスト
+  /// ID取得 NotFoundエラーのテスト
   #[tokio::test]
   async fn test_get_not_found() {
     let mut mock_repo = MockCalligraphyRepositoryTrait::new();
@@ -152,7 +184,7 @@ mod tests {
     assert!(matches!(result, Err(AppError::NotFound)));
   }
 
-	/// 削除 成功のテスト
+  /// 削除 成功のテスト
   #[tokio::test]
   async fn test_delete_success() {
     let mut mock_repo = MockCalligraphyRepositoryTrait::new();
@@ -170,7 +202,7 @@ mod tests {
     assert!(result.is_ok());
   }
 
-	/// 削除 NotFoundエラーのテスト
+  /// 削除 NotFoundエラーのテスト
   #[tokio::test]
   async fn test_delete_not_found() {
     let mut mock_repo = MockCalligraphyRepositoryTrait::new();

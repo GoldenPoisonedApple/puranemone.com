@@ -38,6 +38,7 @@
 ```json
 {
   "user_id": "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11",
+	"user_name": "富士の天然水",
   "content": "今年の抱負は早起きです",
   "created_at": "2025-01-01T00:00:00Z",
   "updated_at": "2025-01-01T00:00:00Z"
@@ -67,12 +68,14 @@
 [
   {
     "user_id": "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11",
+    "user_name": "富士の天然水",
     "content": "今年の抱負は早起きです",
     "created_at": "2025-01-01T10:00:00Z",
     "updated_at": "2025-01-01T10:00:00Z"
   },
   {
     "user_id": "b1ffcd88-...",
+    "user_name": "test user",
     "content": "健康第一",
     "created_at": "2025-01-01T09:30:00Z",
     "updated_at": "2025-01-01T09:30:00Z"
@@ -97,6 +100,7 @@
 ```json
 {
   "user_id": "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11",
+  "user_name": "富士の天然水",
   "content": "今年の抱負は早起きです",
   "created_at": "2025-01-01T00:00:00Z",
   "updated_at": "2025-01-01T00:00:00Z"
@@ -136,6 +140,7 @@
 // 書き初めモデル
 export interface Calligraphy {
   user_id: string;    // UUID
+  user_name: string;  // ユーザー名
   content: string;    // 本文
   created_at: string; // ISO 8601 Date String
   updated_at: string; // ISO 8601 Date String
