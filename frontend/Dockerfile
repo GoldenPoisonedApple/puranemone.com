@@ -3,8 +3,8 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-# 開発時に curl を使うためにインストール
-RUN apk add --no-cache curl
+# 開発時に curl を使うためにインストール bashはリモート接続用
+RUN apk add --no-cache curl bash
 
 # キャッシュを効かせるためにpackage.jsonを先にコピー
 COPY package.json package-lock.json ./

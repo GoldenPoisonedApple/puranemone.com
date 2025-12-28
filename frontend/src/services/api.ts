@@ -1,20 +1,4 @@
-// 型定義 (API仕様書準拠)
-export interface Calligraphy {
-	user_id: string;
-	user_name: string;
-	content: string;
-	created_at: string;
-	updated_at: string;
-}
-
-export interface CreateCalligraphyRequest {
-	user_name: string;
-	content: string;
-}
-
-export interface ApiError {
-	error: string;
-}
+import type { Calligraphy, CreateCalligraphyRequest } from '../types/calligraphy';
 
 const BASE_URL = '/api';
 
@@ -47,24 +31,35 @@ async function client<T>(path: string, options?: RequestInit): Promise<T> {
 	return response.json();
 }
 
-// APIメソッド定義
-export const api = {
-	// 一覧取得
+/**
+ * 書き初めAPI
+ */
+export const calligraphyApi = {
+	/**
+	 * 書き初め一覧を取得
+	 */
 	list: () => client<Calligraphy[]>('/calligraphy'),
 
-	// 個別取得
+	/**
+	 * 特定の書き初めを取得
+	 */
 	get: (id: string) => client<Calligraphy>(`/calligraphy/${id}`),
 
-	// 作成・更新
+	/**
+	 * 書き初めを作成・更新
+	 */
 	upsert: (data: CreateCalligraphyRequest) =>
 		client<Calligraphy>('/calligraphy', {
 			method: 'POST',
 			body: JSON.stringify(data),
 		}),
 
-	// 削除
+	/**
+	 * 書き初めを削除
+	 */
 	delete: (id: string) =>
 		client<void>(`/calligraphy/${id}`, {
 			method: 'DELETE',
 		}),
 };
+
