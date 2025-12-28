@@ -19,12 +19,19 @@
   max-width: 260px;
   margin-left: auto;
   margin-right: auto;
+  /* Edge対応 */
+  -ms-flex-direction: column;
+  min-height: 0;
 }
 
 .card-main-content {
   display: flex;
   flex-direction: row;
+  flex: 1 1 auto;
   flex-grow: 1;
+  /* Edge対応（古いバージョン用） */
+  -ms-flex: 1 1 auto;
+  min-width: 0;
 }
 
 /* 自分の書き初めのハイライト */
@@ -112,19 +119,34 @@
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   flex-grow: 1;
   
-  /* 縦書き設定 */
+  /* 縦書き設定（Edge対応） */
+  -ms-writing-mode: tb-rl;
   writing-mode: vertical-rl;
+  -webkit-text-orientation: upright;
   text-orientation: upright;
   
   /* 右揃え（縦書きの開始位置）*/
   text-align: left;
+  
+  /* Edgeでの表示を安定化 */
+  display: block;
+  min-width: 0;
+  
+  /* スクロールバーのスタイリング（Edge対応） */
+  -ms-overflow-style: -ms-autohiding-scrollbar;
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-gold) rgba(212, 165, 116, 0.1);
 }
 
 /* 3行以下の場合は中央揃え */
 .calligraphy-card.centered-content .card-content {
   display: flex;
   align-items: center;
+  justify-content: center;
   text-align: left;
+  /* Edge対応 */
+  -ms-flex-align: center;
+  -ms-flex-pack: center;
 }
 
 /* 筆のアイコン（右下、更新日時の上） */
@@ -173,7 +195,12 @@
   padding: 1rem 0 1rem 0.5rem;
   border-right: 1px solid rgba(212, 165, 116, 0.3);
   min-width: 1rem;
+  flex: 0 0 auto;
   flex-shrink: 0;
+  /* Edge対応（古いバージョン用） */
+  -ms-flex: 0 0 auto;
+  -ms-flex-direction: column;
+  -ms-flex-pack: start;
 }
 
 
@@ -186,10 +213,15 @@
   position: relative;
   padding-top: 1.5rem;
   
-  /* 縦書き設定 */
+  /* 縦書き設定（Edge対応） */
+  -ms-writing-mode: tb-rl;
   writing-mode: vertical-rl;
+  -webkit-text-orientation: upright;
   text-orientation: upright;
   text-align: right;
+  
+  /* Edgeでの表示を安定化 */
+  display: inline-block;
 }
 
 .user-name::before {

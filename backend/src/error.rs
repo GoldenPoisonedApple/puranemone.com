@@ -24,6 +24,10 @@ pub enum AppError {
   #[error("Validation error: {0}")]
   Validation(String),
 
+  /// レート制限超過
+  #[error("Too many requests")]
+  TooManyRequests,
+
   /// 予期しないサーバーエラー
   #[error("Internal server error")]
   Internal,
@@ -42,6 +46,7 @@ impl IntoResponse for AppError {
       AppError::Database(_) => (StatusCode::INTERNAL_SERVER_ERROR, "Internal Server Error".to_string()),
       AppError::NotFound => (StatusCode::NOT_FOUND, "Resource Not Found".to_string()),
       AppError::Validation(msg) => (StatusCode::BAD_REQUEST, msg),
+      AppError::TooManyRequests => (StatusCode::TOO_MANY_REQUESTS, "Too Many Requests".to_string()),
       AppError::Internal => (StatusCode::INTERNAL_SERVER_ERROR, "Internal Server Error".to_string()),
     };
 

@@ -59,7 +59,7 @@ export const Footer = () => {
 					<h3 className="footer-section-title">その他</h3>
 					<div className="footer-section-content">
 						<p className="footer-text">
-							今年は午年。丙午(ひのえ・うま)らしいですね。丙午はどちらも火の性質を持ち、情熱・活力などを象徴するそうです。せっかくなので何か新しい事に挑戦してみてはいかがでしょうか。(私のおススメはVRChatです。楽しい！無料！)
+							今年は午年。丙午(ひのえ・うま)らしいですね。丙午はどちらも火の性質を持ち、情熱・活力などを象徴するそうです。せっかくなので何か新しい事に挑戦してみてはいかがでしょうか。<br/>(私のおススメはVRChatです。楽しい！無料！)
 						</p>
 						<p className="footer-text">
 							今年も皆様にとって素晴らしい一年となりますように。

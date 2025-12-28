@@ -23,6 +23,7 @@ time = { version = "0.3.44", features = ["serde-human-readable", "macros", "form
 thiserror = "2.0.17"
 tower-cookies = "0.11.0"
 async-trait = "0.1.89"
+moka = { version = "0.12.12", features = ["future"] }
 
 [dev-dependencies]
 http-body-util = "0.1.3"

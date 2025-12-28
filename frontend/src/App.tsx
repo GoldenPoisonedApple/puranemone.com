@@ -17,6 +17,7 @@ function App() {
 	const [showOpening, setShowOpening] = useState(true);
 	const [showContent, setShowContent] = useState(false);
 	const [isModalOpen, setIsModalOpen] = useState(false);
+	const [submitError, setSubmitError] = useState<string | null>(null);
 
 	// 全ての書き初め一覧を取得
 	const { data: list, isLoading, error } = useQuery({
@@ -25,15 +26,17 @@ function App() {
 	});
 
 	// 自分の書き初めを取得
-	const { data: myCalligraphy, error: myError } = useMyCalligraphy();
+	const { data: myCalligraphy} = useMyCalligraphy();
 
 	// フォーム送信
 	const { submit, isSubmitting } = useCalligraphySubmit(
 		() => {
 			setIsModalOpen(false);
+			setSubmitError(null);
 		},
 		(err) => {
 			console.error('書き初めの保存に失敗しました:', err);
+			setSubmitError(err.message);
 		}
 	);
 
@@ -41,18 +44,22 @@ function App() {
 	const { deleteCalligraphy, isDeleting } = useCalligraphyDelete(
 		() => {
 			console.log('書き初めを削除しました');
+			setSubmitError(null);
 		},
 		(err) => {
 			console.error('書き初めの削除に失敗しました:', err);
+			setSubmitError(err.message);
 		}
 	);
 
 	const handleSubmit = (data: CreateCalligraphyRequest) => {
+		setSubmitError(null);
 		submit(data);
 	};
 
 	const handleDelete = () => {
 		if (window.confirm('書き初めを削除してもよろしいですか？')) {
+			setSubmitError(null);
 			deleteCalligraphy();
 			setIsModalOpen(false);
 		}
@@ -68,10 +75,12 @@ function App() {
 
 	const handleOpenModal = () => {
 		setIsModalOpen(true);
+		setSubmitError(null);
 	};
 
 	const handleCloseModal = () => {
 		setIsModalOpen(false);
+		setSubmitError(null);
 	};
 
 	return (
@@ -80,7 +89,7 @@ function App() {
 			
 			<div className={`app ${showContent ? 'show' : ''}`}>
 				<h1>書き初め</h1>
-				<h3>2026年<br/>あけましておめでとうございます</h3>
+				<h3>2026年  丙午<br/>あけましておめでとうございます</h3>
 				<p>せっかくなので、今年の抱負を書き初めにしてみてはいかがでしょうか。<br/>私の去年の抱負は「英語を話す」でした。</p>
 
 				{/* 一覧表示 */}
@@ -127,6 +136,7 @@ function App() {
 					content: myCalligraphy.content
 				} : undefined}
 				isEdit={!!myCalligraphy}
+				serverError={submitError}
 			/>
 		</>
 	);
