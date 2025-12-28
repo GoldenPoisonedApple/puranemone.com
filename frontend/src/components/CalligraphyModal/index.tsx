@@ -43,7 +43,7 @@ export const CalligraphyModal = ({
 		if (isOpen && initialData) {
 			reset(initialData);
 		} else if (isOpen && !initialData) {
-			reset({ user_name: '', content: '' });
+			reset({ user_name: '名無し', content: '' });
 		}
 	}, [isOpen, initialData, reset]);
 
