@@ -128,6 +128,11 @@ docker compose -f compose.yaml up -d --build
 docker compose restart frontend
 ```
 
+### ボリュームごと削除 かつ キャッシュを使わない
+```bash
+docker compose -f compose.yaml up -d --build --force-recreate
+```
+
 # コンテナに接続
 ## フロント
 EXPOSE 80

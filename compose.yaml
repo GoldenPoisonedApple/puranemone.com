@@ -41,3 +41,7 @@ services:
     command: tunnel run
     environment:
       - TUNNEL_TOKEN=${TUNNEL_TOKEN}
+
+# コンテナを消しても残るデータ置き場
+volumes:
+  db_data:
