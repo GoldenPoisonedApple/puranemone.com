@@ -2,7 +2,6 @@
  * 書き初めデータの型定義
  */
 export interface Calligraphy {
-	user_id?: string; // 一意のID（keyとして使用）
 	user_name: string;
 	content: string;
 	created_at: string;

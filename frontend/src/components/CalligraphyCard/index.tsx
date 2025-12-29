@@ -1,6 +1,6 @@
 import { memo } from 'react';
 import type { Calligraphy } from '../../types/calligraphy';
-import { shouldCenterContent } from '../../utils/calligraphy';
+import { shouldCenterContent, generateCardId } from '../../utils/calligraphy';
 import { formatDate } from '../../utils/formatters';
 import PenIcon from '../../assets/icons/筆の無料アイコン2.svg';
 import './CalligraphyCard.css';
@@ -42,11 +42,12 @@ export const CalligraphyCard = memo(({ calligraphy, isMine = false, onClick }: C
 	);
 }, (prevProps, nextProps) => {
 	// カスタム比較関数：必要なプロパティのみ比較
+	const prevCardId = generateCardId(prevProps.calligraphy);
+	const nextCardId = generateCardId(nextProps.calligraphy);
+	
 	return (
-		prevProps.calligraphy.user_id === nextProps.calligraphy.user_id &&
-		prevProps.calligraphy.updated_at === nextProps.calligraphy.updated_at &&
+		prevCardId === nextCardId &&
 		prevProps.calligraphy.content === nextProps.calligraphy.content &&
-		prevProps.calligraphy.user_name === nextProps.calligraphy.user_name &&
 		prevProps.isMine === nextProps.isMine &&
 		prevProps.onClick === nextProps.onClick
 	);

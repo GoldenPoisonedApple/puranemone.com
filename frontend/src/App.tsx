@@ -10,7 +10,7 @@ import { ConfirmDialog } from './components/ConfirmDialog';
 import { CalligraphyCard } from './components/CalligraphyCard';
 import { Footer } from './components/Footer';
 import { API_CONFIG, QUERY_KEYS, MESSAGES, UI_CONFIG } from './constants';
-import { findMyCalligraphy } from './utils/calligraphy';
+import { findMyCalligraphy, generateCardId } from './utils/calligraphy';
 import type { CreateCalligraphyRequest } from './types/calligraphy';
 import './App.css';
 
@@ -137,11 +137,11 @@ function App() {
 					<div className="card-grid">
 						{list?.map((item) => {
 							const isMyCard = item.is_mine;
-							// user_idがあればそれを使用、なければcreated_atをkeyとして使用
-							const key = item.user_id || item.created_at || `${item.user_name}-${item.created_at}`;
+							// user_name + created_at + updated_at の組み合わせで一意性を保証
+							const cardId = generateCardId(item);
 							return (
 								<CalligraphyCard 
-									key={key} 
+									key={cardId} 
 									calligraphy={item} 
 									isMine={isMyCard}
 									onClick={isMyCard ? handleOpenModal : undefined}

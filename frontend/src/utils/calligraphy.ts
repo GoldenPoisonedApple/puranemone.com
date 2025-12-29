@@ -22,3 +22,10 @@ export const findMyCalligraphy = (list: Calligraphy[]): Calligraphy | undefined 
 	return list.find(item => item.is_mine);
 };
 
+/**
+ * 書き初めカードの一意IDを生成
+ * user_name + created_at + updated_at の組み合わせで一意性を保証
+ */
+export const generateCardId = (calligraphy: Calligraphy): string => {
+	return `${calligraphy.user_name}-${calligraphy.created_at}-${calligraphy.updated_at}`;
+};
