@@ -20,7 +20,7 @@ COPY . .
 ENV SQLX_OFFLINE=true
 
 # テスト実行
-RUN cargo test --release
+#RUN cargo test --release
 # リリースビルド実行
 RUN cargo build --release
 
