@@ -35,7 +35,7 @@ pub async fn upsert<R: CalligraphyRepositoryTrait>(
 ) -> Result<impl IntoResponse, AppError> {
   // IPアドレスによるレート制限チェック
   if let Some(ip_addr) = ip {
-    service.check_read_rate_limit(ip_addr).await?;
+    service.check_write_rate_limit(ip_addr).await?;
   }
 
   let ip_network = ip.map(IpNetwork::from);
