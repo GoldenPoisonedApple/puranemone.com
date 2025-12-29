@@ -15,6 +15,10 @@ WORKDIR /app
 # (本格運用時は cargo-chef の導入を推奨)
 COPY . .
 
+# sqlx-data.json があればコピーされている
+# オフラインモードでビルド (外部ネットワークにアクセスしない)
+ENV SQLX_OFFLINE=true
+
 # テスト実行
 RUN cargo test --release
 # リリースビルド実行

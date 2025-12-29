@@ -1,0 +1,14 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n\t\t\tDELETE FROM calligraphy\n\t\t\tWHERE user_id = $1\n\t\t\t",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "a2a7ffe790f02fa55566cf0e00022a47c0fce9a30b19c8ab0ae08c7bc5665057"
+}

@@ -1,0 +1,69 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n\t\t\t\t\t\tINSERT INTO calligraphy (user_id, user_name, content, ip_address, user_agent, accept_language, updated_at)\n\t\t\t\t\t\tVALUES ($1, $2, $3, $4, $5, $6, NOW())\n\t\t\t\t\t\tON CONFLICT (user_id)\n\t\t\t\t\t\tDO UPDATE SET\t-- 重複時は内容を上書き\n\t\t\t\t\t\t\t\tuser_name = EXCLUDED.user_name,\n\t\t\t\t\t\t\t\tcontent = EXCLUDED.content,\n\t\t\t\t\t\t\t\tip_address = EXCLUDED.ip_address,\n\t\t\t\t\t\t\t\tuser_agent = EXCLUDED.user_agent,\n\t\t\t\t\t\t\t\taccept_language = EXCLUDED.accept_language,\n\t\t\t\t\t\t\t\tupdated_at = NOW()\n\t\t\t\t\t\tRETURNING user_id, user_name, content, ip_address, user_agent, accept_language, created_at, updated_at\n\t\t\t\t\t\t",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "user_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "user_name",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "content",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "ip_address",
+        "type_info": "Inet"
+      },
+      {
+        "ordinal": 4,
+        "name": "user_agent",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 5,
+        "name": "accept_language",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 6,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 7,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Text",
+        "Text",
+        "Inet",
+        "Text",
+        "Varchar"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      true,
+      true,
+      false,
+      false
+    ]
+  },
+  "hash": "355c9c5a6a102e07fc394e375df394610d007d8cb9dc0ad56916eeb3b572c5f2"
+}

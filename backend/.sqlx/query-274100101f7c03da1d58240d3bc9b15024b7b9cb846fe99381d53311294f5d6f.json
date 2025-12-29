@@ -1,0 +1,62 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            SELECT user_id, user_name, content, NULL::inet AS ip_address, NULL::text AS user_agent, NULL::varchar AS accept_language, created_at, updated_at\n            FROM calligraphy\n            ORDER BY created_at DESC\n            LIMIT 100 -- 安全のため上限を設定（必要に応じてページネーションに変更）\n            ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "user_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "user_name",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "content",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "ip_address",
+        "type_info": "Inet"
+      },
+      {
+        "ordinal": 4,
+        "name": "user_agent",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 5,
+        "name": "accept_language",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 6,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 7,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      null,
+      null,
+      null,
+      false,
+      false
+    ]
+  },
+  "hash": "274100101f7c03da1d58240d3bc9b15024b7b9cb846fe99381d53311294f5d6f"
+}
