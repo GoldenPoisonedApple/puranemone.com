@@ -104,11 +104,11 @@ function App() {
 					)}
 
 					<div className="card-grid">
-						{list?.map((item) => {
-							const isMyCard = myCalligraphy?.user_id === item.user_id;
+						{list?.map((item, index) => {
+							const isMyCard = item.is_mine;
 							return (
 								<CalligraphyCard 
-									key={item.user_id} 
+									key={index} 
 									calligraphy={item} 
 									isMine={isMyCard}
 									onClick={isMyCard ? handleOpenModal : undefined}
