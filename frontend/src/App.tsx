@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { calligraphyApi } from './lib/api';
 import { useCalligraphySubmit, useCalligraphyDelete } from './lib/hooks';
@@ -6,6 +6,7 @@ import { Opening } from './components/Opening';
 import { FloatingButton } from './components/FloatingButton';
 import { CalligraphyModal } from './components/CalligraphyModal';
 import { PrivacyPolicyModal } from './components/PrivacyPolicyModal';
+import { ConfirmDialog } from './components/ConfirmDialog';
 import { CalligraphyCard } from './components/CalligraphyCard';
 import { Footer } from './components/Footer';
 import { API_CONFIG, QUERY_KEYS, MESSAGES, UI_CONFIG } from './constants';
@@ -21,6 +22,7 @@ function App() {
 	const [showContent, setShowContent] = useState(false);
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const [isPrivacyOpen, setIsPrivacyOpen] = useState(false);
+	const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
 	const [submitError, setSubmitError] = useState<string | null>(null);
 
 	// 全ての書き初め一覧を取得
@@ -30,8 +32,10 @@ function App() {
 		staleTime: API_CONFIG.STALE_TIME,
 	});
 
-	// listから自分の書き初めを抽出
-	const myCalligraphy = list ? findMyCalligraphy(list) : undefined;
+	// listから自分の書き初めを抽出（メモ化）
+	const myCalligraphy = useMemo(() => {
+		return list ? findMyCalligraphy(list) : undefined;
+	}, [list]);
 
 	// フォーム送信
 	const { submit, isSubmitting } = useCalligraphySubmit({
@@ -54,36 +58,56 @@ function App() {
 		},
 	});
 
-	const handleSubmit = (data: CreateCalligraphyRequest) => {
+	// エラーリセット関数（重複削減）
+	const resetError = useCallback(() => {
 		setSubmitError(null);
+	}, []);
+
+	const handleSubmit = useCallback((data: CreateCalligraphyRequest) => {
+		resetError();
 		submit(data);
-	};
+	}, [submit, resetError]);
 
-	const handleDelete = () => {
-		if (window.confirm(MESSAGES.DELETE_CONFIRM)) {
-			setSubmitError(null);
-			deleteCalligraphy();
-			setIsModalOpen(false);
-		}
-	};
+	const handleDeleteClick = useCallback(() => {
+		setIsDeleteConfirmOpen(true);
+	}, []);
 
-	const handleOpeningComplete = () => {
+	const handleDeleteConfirm = useCallback(() => {
+		setIsDeleteConfirmOpen(false);
+		resetError();
+		deleteCalligraphy();
+		setIsModalOpen(false);
+	}, [deleteCalligraphy, resetError]);
+
+	const handleDeleteCancel = useCallback(() => {
+		setIsDeleteConfirmOpen(false);
+	}, []);
+
+	const handleOpeningComplete = useCallback(() => {
 		setShowOpening(false);
 		// オープニング終了後、少し遅延してコンテンツをフェードイン
 		setTimeout(() => {
 			setShowContent(true);
 		}, UI_CONFIG.OPENING_FADE_DELAY);
-	};
+	}, []);
 
-	const handleOpenModal = () => {
+	const handleOpenModal = useCallback(() => {
 		setIsModalOpen(true);
-		setSubmitError(null);
-	};
+		resetError();
+	}, [resetError]);
 
-	const handleCloseModal = () => {
+	const handleCloseModal = useCallback(() => {
 		setIsModalOpen(false);
-		setSubmitError(null);
-	};
+		resetError();
+	}, [resetError]);
+
+	const handleOpenPrivacy = useCallback(() => {
+		setIsPrivacyOpen(true);
+	}, []);
+
+	const handleClosePrivacy = useCallback(() => {
+		setIsPrivacyOpen(false);
+	}, []);
 
 	return (
 		<>
@@ -111,11 +135,13 @@ function App() {
 					)}
 
 					<div className="card-grid">
-						{list?.map((item, index) => {
+						{list?.map((item) => {
 							const isMyCard = item.is_mine;
+							// user_idがあればそれを使用、なければcreated_atをkeyとして使用
+							const key = item.user_id || item.created_at || `${item.user_name}-${item.created_at}`;
 							return (
 								<CalligraphyCard 
-									key={index} 
+									key={key} 
 									calligraphy={item} 
 									isMine={isMyCard}
 									onClick={isMyCard ? handleOpenModal : undefined}
@@ -126,7 +152,7 @@ function App() {
 				</section>
 
 				{/* フッター */}
-				{showContent && <Footer onOpenPrivacyPolicy={() => setIsPrivacyOpen(true)} />}
+				{showContent && <Footer onOpenPrivacyPolicy={handleOpenPrivacy} />}
 			</div>
 
 			{/* フローティングボタン */}
@@ -137,7 +163,7 @@ function App() {
 				isOpen={isModalOpen}
 				onClose={handleCloseModal}
 				onSubmit={handleSubmit}
-				onDelete={myCalligraphy ? handleDelete : undefined}
+				onDelete={myCalligraphy ? handleDeleteClick : undefined}
 				isSubmitting={isSubmitting}
 				isDeleting={isDeleting}
 				initialData={myCalligraphy ? {
@@ -150,7 +176,16 @@ function App() {
 
 			<PrivacyPolicyModal 
 				isOpen={isPrivacyOpen} 
-				onClose={() => setIsPrivacyOpen(false)} 
+				onClose={handleClosePrivacy} 
+			/>
+
+			{/* 削除確認ダイアログ */}
+			<ConfirmDialog
+				isOpen={isDeleteConfirmOpen}
+				title="削除の確認"
+				message={MESSAGES.DELETE_CONFIRM}
+				onConfirm={handleDeleteConfirm}
+				onCancel={handleDeleteCancel}
 			/>
 		</>
 	);

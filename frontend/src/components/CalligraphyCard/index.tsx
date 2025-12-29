@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import type { Calligraphy } from '../../types/calligraphy';
 import { shouldCenterContent } from '../../utils/calligraphy';
 import { formatDate } from '../../utils/formatters';
@@ -13,7 +14,7 @@ interface CalligraphyCardProps {
 /**
  * 書き初めカード表示コンポーネント
  */
-export const CalligraphyCard = ({ calligraphy, isMine = false, onClick }: CalligraphyCardProps) => {
+export const CalligraphyCard = memo(({ calligraphy, isMine = false, onClick }: CalligraphyCardProps) => {
 	const isCentered = shouldCenterContent(calligraphy.content);
 	const formattedDate = formatDate(calligraphy.updated_at);
 	const isClickable = isMine && !!onClick;
@@ -39,4 +40,14 @@ export const CalligraphyCard = ({ calligraphy, isMine = false, onClick }: Callig
 			</div>
 		</div>
 	);
-};
+}, (prevProps, nextProps) => {
+	// カスタム比較関数：必要なプロパティのみ比較
+	return (
+		prevProps.calligraphy.user_id === nextProps.calligraphy.user_id &&
+		prevProps.calligraphy.updated_at === nextProps.calligraphy.updated_at &&
+		prevProps.calligraphy.content === nextProps.calligraphy.content &&
+		prevProps.calligraphy.user_name === nextProps.calligraphy.user_name &&
+		prevProps.isMine === nextProps.isMine &&
+		prevProps.onClick === nextProps.onClick
+	);
+});

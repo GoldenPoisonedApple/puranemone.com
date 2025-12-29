@@ -1,4 +1,5 @@
 import { useForm } from 'react-hook-form';
+import { useRef } from 'react';
 import { CharacterCounter } from '../CharacterCounter';
 import { FORM_LIMITS } from '../../constants';
 import { useModalEffects } from '../../hooks/useModalEffects';
@@ -35,12 +36,15 @@ export const CalligraphyModal = ({
 		defaultValues: initialData
 	});
 	
+	// モーダルコンテンツの参照（フォーカストラップ用）
+	const modalContentRef = useRef<HTMLDivElement>(null);
+	
 	// 文字数をリアルタイムで監視
 	const contentValue = watch('content', '');
 	const contentLength = contentValue?.length || 0;
 
-	// モーダルの共通効果（Escキー、bodyスクロール制御など）
-	useModalEffects(isOpen, onClose, initialData, reset);
+	// モーダルの共通効果（Escキー、bodyスクロール制御、フォーカストラップなど）
+	useModalEffects(isOpen, onClose, initialData, reset, modalContentRef);
 
 	if (!isOpen) return null;
 
@@ -57,12 +61,19 @@ export const CalligraphyModal = ({
 				}
 			}}
 		>
-			<div className="modal-content" onClick={(e) => e.stopPropagation()}>
+			<div 
+				ref={modalContentRef}
+				className="modal-content" 
+				onClick={(e) => e.stopPropagation()}
+				role="dialog"
+				aria-modal="true"
+				aria-labelledby="modal-title"
+			>
 				<button className="modal-close" onClick={onClose} aria-label="閉じる">
 					×
 				</button>
 				
-				<h2 className="modal-title">
+				<h2 id="modal-title" className="modal-title">
 					{isEdit ? '書き初めを編集' : '書き初めを奉納'}
 				</h2>
 

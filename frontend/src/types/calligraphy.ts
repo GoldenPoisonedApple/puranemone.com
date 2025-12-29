@@ -2,6 +2,7 @@
  * 書き初めデータの型定義
  */
 export interface Calligraphy {
+	user_id?: string; // 一意のID（keyとして使用）
 	user_name: string;
 	content: string;
 	created_at: string;
@@ -22,5 +23,16 @@ export interface CreateCalligraphyRequest {
  */
 export interface ApiError {
 	error: string;
+	code?: string;
+	details?: Record<string, unknown>;
+}
+
+/**
+ * APIエラーレスポンスの型定義
+ */
+export interface ApiErrorResponse {
+	error: string;
+	code?: string;
+	details?: Record<string, unknown>;
 }
 
