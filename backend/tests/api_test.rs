@@ -42,11 +42,12 @@ async fn test_calligraphy_scenario() {
   // レスポンスボディからIDを取得
   let body = response.into_body().collect().await.unwrap().to_bytes();
   let created_json: serde_json::Value = serde_json::from_slice(&body).unwrap();
-  let created_id = created_json["user_id"].as_str().unwrap();
+  // let created_id = created_json["user_id"].as_str().unwrap();
 	assert_eq!(created_json["user_name"], "Test User");
   assert_eq!(created_json["content"], "Integration Test Scenario");
+  assert_eq!(created_json["is_mine"], true);
 
-  println!("Step 1: Created with ID: {}", created_id);
+  println!("Step 1: Created successfully");
 
   // --- Step 2: 自分のデータを取得 (GET /api/calligraphy/:id) ---
   // 注意: 本来は /api/calligraphy/me のようなエンドポイントが望ましいが、
@@ -70,7 +71,7 @@ async fn test_calligraphy_scenario() {
   let fetched_json: serde_json::Value = serde_json::from_slice(&body).unwrap();
   assert_eq!(fetched_json["content"], "Integration Test Scenario");
 	assert_eq!(fetched_json["user_name"], "Test User");
-  assert_eq!(fetched_json["user_id"], created_id);
+  assert_eq!(fetched_json["is_mine"], true);
 
   println!("Step 2: Fetched successfully");
 

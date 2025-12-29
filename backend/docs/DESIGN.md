@@ -56,7 +56,7 @@ graph TD
 
 *   **Models (`src/models/`)**:
     *   ドメインオブジェクト（データ構造）の定義。
-    *   DBのテーブル構造とJSONレスポンスの形状を定義。
+    *   DBのテーブル構造とJSONレスポンスの形状（DTO）を定義。
 
 *   **Extractors (`src/extractors.rs`)**:
     *   Axumの機能を利用し、リクエストから共通データ（認証ユーザー情報など）を抽出する。

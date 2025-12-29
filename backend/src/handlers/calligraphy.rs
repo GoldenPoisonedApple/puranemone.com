@@ -4,23 +4,15 @@ use axum::{
   response::IntoResponse,
   Json,
 };
-use serde::Deserialize;
 use sqlx::types::ipnetwork::IpNetwork;
 
 use crate::{
   error::AppError,
   extractors::{AuthUser, ClientIp, UserAgent, AcceptLanguage},
+  models::calligraphy::{CreateCalligraphyRequest, CalligraphyResponse},
   repositories::db_repository::CalligraphyRepositoryTrait,
   services::calligraphy::CalligraphyService,
 };
-
-// --- DTOs (Data Transfer Objects) ---
-/// フロントから受け取る書き初め作成・更新用のリクエストボディ
-#[derive(Deserialize)]
-pub struct CreateCalligraphyRequest {
-  pub user_name: String,
-  pub content: String,
-}
 
 // --- Handlers ---
 
@@ -49,12 +41,22 @@ pub async fn upsert<R: CalligraphyRepositoryTrait>(
       accept_language,
     )
     .await?;
-  Ok((StatusCode::OK, Json(calligraphy)))
+
+  let response = CalligraphyResponse {
+    user_name: calligraphy.user_name,
+    content: calligraphy.content,
+    created_at: calligraphy.created_at,
+    updated_at: calligraphy.updated_at,
+    is_mine: true,
+  };
+
+  Ok((StatusCode::OK, Json(response)))
 }
 
 /// 一覧取得
 pub async fn list<R: CalligraphyRepositoryTrait>(
   State(service): State<CalligraphyService<R>>,
+  auth_user: AuthUser,
   ClientIp(ip): ClientIp,
 ) -> Result<impl IntoResponse, AppError> {
   // IPアドレスによるレート制限チェック
@@ -63,7 +65,20 @@ pub async fn list<R: CalligraphyRepositoryTrait>(
   }
 
   let list = service.get_all().await?;
-  Ok((StatusCode::OK, Json(list)))
+  let response: Vec<CalligraphyResponse> = list
+    .into_iter()
+    .map(|c| {
+      let is_mine = c.user_id == auth_user.id;
+      CalligraphyResponse {
+        user_name: c.user_name,
+        content: c.content,
+        created_at: c.created_at,
+        updated_at: c.updated_at,
+        is_mine,
+      }
+    })
+    .collect();
+  Ok((StatusCode::OK, Json(response)))
 }
 
 /// 個別取得
@@ -78,7 +93,16 @@ pub async fn get<R: CalligraphyRepositoryTrait>(
   }
 
   let calligraphy = service.get(auth_user.id).await?;
-  Ok((StatusCode::OK, Json(calligraphy)))
+
+  let response = CalligraphyResponse {
+    user_name: calligraphy.user_name,
+    content: calligraphy.content,
+    created_at: calligraphy.created_at,
+    updated_at: calligraphy.updated_at,
+    is_mine: true,
+  };
+
+  Ok((StatusCode::OK, Json(response)))
 }
 
 /// 削除
@@ -183,7 +207,7 @@ mod tests {
     let service = CalligraphyService::new(mock_repo);
     let state = State(service);
     let client_ip = ClientIp(Some("127.0.0.1".parse().unwrap()));
-    let response = list(state, client_ip).await;
+    let response = list(state, AuthUser { id: Uuid::new_v4() }, client_ip).await;
 
     assert!(response.is_ok());
   }
@@ -364,11 +388,11 @@ mod tests {
     let state = State(service);
 
     // 1回目: 成功
-    let response1 = list(state.clone(), ClientIp(Some("10.0.0.1".parse().unwrap()))).await;
+    let response1 = list(state.clone(), AuthUser { id: Uuid::new_v4() }, ClientIp(Some("10.0.0.1".parse().unwrap()))).await;
     assert!(response1.is_ok());
 
     // 2回目: 失敗 (TooManyRequests)
-    let response2 = list(state.clone(), ClientIp(Some("10.0.0.1".parse().unwrap()))).await;
+    let response2 = list(state.clone(), AuthUser { id: Uuid::new_v4() }, ClientIp(Some("10.0.0.1".parse().unwrap()))).await;
     match response2 {
       Err(AppError::TooManyRequests) => assert!(true),
       _ => assert!(false, "Should return TooManyRequests error"),
