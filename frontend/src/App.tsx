@@ -1,13 +1,18 @@
-import { useState } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { calligraphyApi } from './lib/api';
-import { useMyCalligraphy, useCalligraphySubmit, useCalligraphyDelete } from './lib/hooks';
+import { useCalligraphySubmit, useCalligraphyDelete } from './lib/hooks';
 import { Opening } from './components/Opening';
 import { FloatingButton } from './components/FloatingButton';
 import { CalligraphyModal } from './components/CalligraphyModal';
 import { PrivacyPolicyModal } from './components/PrivacyPolicyModal';
-import { CalligraphyCard } from './components/CalligraphyCard';
+import { ConfirmDialog } from './components/ConfirmDialog';
+import { CalligraphyList } from './components/CalligraphyList';
 import { Footer } from './components/Footer';
+import { API_CONFIG, QUERY_KEYS, MESSAGES, UI_CONFIG, MODAL_TITLES } from './constants';
+import { findMyCalligraphy, toInitialData } from './utils/calligraphy';
+import { useErrorHandler } from './hooks/useErrorHandler';
+import { useModalState } from './hooks/useModalState';
 import type { CreateCalligraphyRequest } from './types/calligraphy';
 import './App.css';
 
@@ -17,73 +22,93 @@ import './App.css';
 function App() {
 	const [showOpening, setShowOpening] = useState(true);
 	const [showContent, setShowContent] = useState(false);
-	const [isModalOpen, setIsModalOpen] = useState(false);
-	const [isPrivacyOpen, setIsPrivacyOpen] = useState(false);
-	const [submitError, setSubmitError] = useState<string | null>(null);
+	
+	// モーダル状態管理
+	const modalState = useModalState();
+	
+	// エラーハンドリング
+	const { error: submitError, resetError, handleError } = useErrorHandler();
 
 	// 全ての書き初め一覧を取得
 	const { data: list, isLoading, error } = useQuery({
-		queryKey: ['calligraphy', 'list'],
+		queryKey: QUERY_KEYS.CALLIGRAPHY_LIST,
 		queryFn: calligraphyApi.list,
+		staleTime: API_CONFIG.STALE_TIME,
+		refetchInterval: API_CONFIG.REFETCH_INTERVAL, // 30秒ごとに自動更新
+		refetchIntervalInBackground: true, // バックグラウンドでも更新
 	});
 
-	// 自分の書き初めを取得
-	const { data: myCalligraphy} = useMyCalligraphy();
+	// listから自分の書き初めを抽出（メモ化）
+	const myCalligraphy = useMemo(() => {
+		return list ? findMyCalligraphy(list) : undefined;
+	}, [list]);
 
 	// フォーム送信
-	const { submit, isSubmitting } = useCalligraphySubmit(
-		() => {
-			setIsModalOpen(false);
-			setSubmitError(null);
+	const { submit, isSubmitting } = useCalligraphySubmit({
+		onSuccess: () => {
+			modalState.close();
+			resetError();
 		},
-		(err) => {
-			console.error('書き初めの保存に失敗しました:', err);
-			setSubmitError(err.message);
-		}
-	);
+		onError: handleError,
+	});
 
 	// 削除
-	const { deleteCalligraphy, isDeleting } = useCalligraphyDelete(
-		() => {
-			console.log('書き初めを削除しました');
-			setSubmitError(null);
+	const { deleteCalligraphy, isDeleting } = useCalligraphyDelete({
+		onSuccess: () => {
+			resetError();
 		},
-		(err) => {
-			console.error('書き初めの削除に失敗しました:', err);
-			setSubmitError(err.message);
-		}
-	);
+		onError: handleError,
+	});
 
-	const handleSubmit = (data: CreateCalligraphyRequest) => {
-		setSubmitError(null);
+	// 書き初めを送信
+	const handleSubmit = useCallback((data: CreateCalligraphyRequest) => {
+		resetError();
 		submit(data);
-	};
+	}, [submit, resetError]);
 
-	const handleDelete = () => {
-		if (window.confirm('書き初めを削除してもよろしいですか？')) {
-			setSubmitError(null);
-			deleteCalligraphy();
-			setIsModalOpen(false);
-		}
-	};
+	// 書き初めを削除
+	const handleDeleteClick = useCallback(() => {
+		modalState.open('deleteConfirm');
+	}, [modalState]);
 
-	const handleOpeningComplete = () => {
+	// 書き初めを削除確認
+	const handleDeleteConfirm = useCallback(() => {
+		modalState.close();
+		resetError();
+		deleteCalligraphy();
+	}, [deleteCalligraphy, resetError, modalState]);
+
+	// 書き初めを削除キャンセル
+	const handleDeleteCancel = useCallback(() => {
+		modalState.close();
+	}, [modalState]);
+
+	// オープニング終了後、コンテンツをフェードイン
+	const handleOpeningComplete = useCallback(() => {
 		setShowOpening(false);
 		// オープニング終了後、少し遅延してコンテンツをフェードイン
 		setTimeout(() => {
 			setShowContent(true);
-		}, 100);
-	};
+		}, UI_CONFIG.OPENING_FADE_DELAY);
+	}, []);
 
-	const handleOpenModal = () => {
-		setIsModalOpen(true);
-		setSubmitError(null);
-	};
+	// モーダルを開く
+	const handleOpenModal = useCallback(() => {
+		modalState.open('calligraphy');
+		resetError();
+	}, [resetError, modalState]);
 
-	const handleCloseModal = () => {
-		setIsModalOpen(false);
-		setSubmitError(null);
-	};
+	// モーダルを閉じる
+	const handleCloseModal = useCallback(() => {
+		modalState.close();
+		resetError();
+	}, [resetError, modalState]);
+
+	// カードをクリックした時にモーダルを開く
+	const handleCardClick = useCallback(() => {
+		modalState.open('calligraphy');
+		resetError();
+	}, [resetError, modalState]);
 
 	return (
 		<>
@@ -92,34 +117,21 @@ function App() {
 			<div className={`app ${showContent ? 'show' : ''}`}>
 				<h1>書き初め</h1>
 				<h3>2026年  丙午<br/>あけましておめでとうございます</h3>
-				<p>せっかくなので、今年の抱負を書き初めにしてみてはいかがでしょう。<br/>SNSへの本サイトの共有はお控えください。<br/>ご友人方との共有に留めていただけると私のPCが生き延びます。<br/>※ブラウザを変更したりクッキーを削除すると違うユーザ判定となります。</p>
+				<p>せっかくなので、今年の抱負や去年の反省等を書き初めにしてみてはいかがでしょう。</p>
+				<p className="app-notice">SNSへの本サイトの共有はお控えください。<br/>ご友人方との共有に留めていただけるとPCの生存率が上がります。<br/>※ブラウザを変更したりクッキーを削除すると違うユーザ判定となります。</p>
 
 				{/* 一覧表示 */}
 				<section className="list-section">
-					{isLoading && <p className="loading-text">読み込み中...</p>}
-					{error && <p className="error-text">データの取得に失敗しました</p>}
-
-					{!isLoading && !error && list && list.length === 0 && (
-						<p className="empty-text">まだ書き初めが投稿されていません。<br />右下のボタンから書き初めを奉納しましょう。</p>
-					)}
-
-					<div className="card-grid">
-						{list?.map((item, index) => {
-							const isMyCard = item.is_mine;
-							return (
-								<CalligraphyCard 
-									key={index} 
-									calligraphy={item} 
-									isMine={isMyCard}
-									onClick={isMyCard ? handleOpenModal : undefined}
-								/>
-							);
-						})}
-					</div>
+					<CalligraphyList
+						list={list}
+						isLoading={isLoading}
+						error={error}
+						onCardClick={handleCardClick}
+					/>
 				</section>
 
 				{/* フッター */}
-				{showContent && <Footer onOpenPrivacyPolicy={() => setIsPrivacyOpen(true)} />}
+				{showContent && <Footer onOpenPrivacyPolicy={() => modalState.open('privacy')} />}
 			</div>
 
 			{/* フローティングボタン */}
@@ -127,23 +139,30 @@ function App() {
 
 			{/* モーダル */}
 			<CalligraphyModal
-				isOpen={isModalOpen}
+				isOpen={modalState.isOpen('calligraphy')}
 				onClose={handleCloseModal}
 				onSubmit={handleSubmit}
-				onDelete={myCalligraphy ? handleDelete : undefined}
+				onDelete={myCalligraphy ? handleDeleteClick : undefined}
 				isSubmitting={isSubmitting}
 				isDeleting={isDeleting}
-				initialData={myCalligraphy ? {
-					user_name: myCalligraphy.user_name,
-					content: myCalligraphy.content
-				} : undefined}
+				initialData={toInitialData(myCalligraphy)}
 				isEdit={!!myCalligraphy}
 				serverError={submitError}
 			/>
 
+			{/* プライバシーポリシーモーダル */}
 			<PrivacyPolicyModal 
-				isOpen={isPrivacyOpen} 
-				onClose={() => setIsPrivacyOpen(false)} 
+				isOpen={modalState.isOpen('privacy')} 
+				onClose={() => modalState.close()} 
+			/>
+
+			{/* 削除確認ダイアログ */}
+			<ConfirmDialog
+				isOpen={modalState.isOpen('deleteConfirm')}
+				title={MODAL_TITLES.DELETE_CONFIRM}
+				message={MESSAGES.DELETE_CONFIRM}
+				onConfirm={handleDeleteConfirm}
+				onCancel={handleDeleteCancel}
 			/>
 		</>
 	);

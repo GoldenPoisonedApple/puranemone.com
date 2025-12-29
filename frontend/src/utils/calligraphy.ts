@@ -1,0 +1,42 @@
+import { FORM_LIMITS } from '../constants';
+import type { Calligraphy, CreateCalligraphyRequest } from '../types/calligraphy';
+
+/**
+ * 書き初めの行数をカウント
+ */
+export const getLineCount = (content: string): number => {
+	return content.split('\n').length;
+};
+
+/**
+ * 中央揃えが必要かどうかを判定
+ */
+export const shouldCenterContent = (content: string): boolean => {
+	return getLineCount(content) <= FORM_LIMITS.CONTENT_CENTER_THRESHOLD;
+};
+
+/**
+ * 自分の書き初めを抽出
+ */
+export const findMyCalligraphy = (list: Calligraphy[]): Calligraphy | undefined => {
+	return list.find(item => item.is_mine);
+};
+
+/**
+ * 書き初めカードの一意IDを生成
+ * user_name + created_at + updated_at の組み合わせで一意性を保証
+ */
+export const generateCardId = (calligraphy: Calligraphy): string => {
+	return `${calligraphy.user_name}-${calligraphy.created_at}-${calligraphy.updated_at}`;
+};
+
+/**
+ * Calligraphyから初期データ（CreateCalligraphyRequest）を生成
+ */
+export const toInitialData = (calligraphy: Calligraphy | undefined): CreateCalligraphyRequest | undefined => {
+	if (!calligraphy) return undefined;
+	return {
+		user_name: calligraphy.user_name,
+		content: calligraphy.content,
+	};
+};

@@ -22,5 +22,16 @@ export interface CreateCalligraphyRequest {
  */
 export interface ApiError {
 	error: string;
+	code?: string;
+	details?: Record<string, unknown>;
+}
+
+/**
+ * APIエラーレスポンスの型定義
+ */
+export interface ApiErrorResponse {
+	error: string;
+	code?: string;
+	details?: Record<string, unknown>;
 }
 
