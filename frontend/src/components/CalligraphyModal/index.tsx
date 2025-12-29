@@ -142,6 +142,10 @@ export const CalligraphyModal = ({
 						)}
 					</div>
 
+					<p className="modal-warning">
+						※個人情報の入力はお控えください。曲がりなりにもにもインターネッツですからね。
+					</p>
+
 					<div className="modal-actions">
 						{isEdit && onDelete && (
 							<button 
