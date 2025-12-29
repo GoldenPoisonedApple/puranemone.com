@@ -4,23 +4,15 @@ use axum::{
   response::IntoResponse,
   Json,
 };
-use serde::Deserialize;
 use sqlx::types::ipnetwork::IpNetwork;
 
 use crate::{
   error::AppError,
   extractors::{AuthUser, ClientIp, UserAgent, AcceptLanguage},
+  models::calligraphy::{CreateCalligraphyRequest, CalligraphyResponse},
   repositories::db_repository::CalligraphyRepositoryTrait,
   services::calligraphy::CalligraphyService,
 };
-
-// --- DTOs (Data Transfer Objects) ---
-/// フロントから受け取る書き初め作成・更新用のリクエストボディ
-#[derive(Deserialize)]
-pub struct CreateCalligraphyRequest {
-  pub user_name: String,
-  pub content: String,
-}
 
 // --- Handlers ---
 
@@ -49,21 +41,39 @@ pub async fn upsert<R: CalligraphyRepositoryTrait>(
       accept_language,
     )
     .await?;
-  Ok((StatusCode::OK, Json(calligraphy)))
+
+  let response = CalligraphyResponse {
+    user_name: calligraphy.user_name,
+    content: calligraphy.content,
+    created_at: calligraphy.created_at,
+    updated_at: calligraphy.updated_at,
+    is_mine: true,
+  };
+
+  Ok((StatusCode::OK, Json(response)))
 }
 
 /// 一覧取得
 pub async fn list<R: CalligraphyRepositoryTrait>(
   State(service): State<CalligraphyService<R>>,
+  auth_user: AuthUser,
   ClientIp(ip): ClientIp,
 ) -> Result<impl IntoResponse, AppError> {
   // IPアドレスによるレート制限チェック
   if let Some(ip_addr) = ip {
     service.check_read_rate_limit(ip_addr).await?;
   }
-
+	// 全件取得
   let list = service.get_all().await?;
-  Ok((StatusCode::OK, Json(list)))
+	// レスポンス用DTOに変換
+  let response: Vec<CalligraphyResponse> = list
+    .into_iter()
+    .map(|c| {
+      let is_mine = c.user_id == auth_user.id;
+      c.to_response(is_mine)
+    })
+    .collect();
+  Ok((StatusCode::OK, Json(response)))
 }
 
 /// 個別取得
@@ -76,9 +86,12 @@ pub async fn get<R: CalligraphyRepositoryTrait>(
   if let Some(ip_addr) = ip {
     service.check_read_rate_limit(ip_addr).await?;
   }
-
+	// 自分の書き初めを取得
   let calligraphy = service.get(auth_user.id).await?;
-  Ok((StatusCode::OK, Json(calligraphy)))
+	// レスポンス用DTOに変換
+  let response = calligraphy.to_response(true);
+
+  Ok((StatusCode::OK, Json(response)))
 }
 
 /// 削除
@@ -103,10 +116,22 @@ mod tests {
   use crate::repositories::db_repository::MockCalligraphyRepositoryTrait;
   use async_trait::async_trait;
   use sqlx::types::ipnetwork::IpNetwork;
-  use std::net::IpAddr;
   use std::sync::Arc;
   use time::OffsetDateTime;
   use uuid::Uuid;
+
+  fn create_dummy_calligraphy(user_id: Uuid, user_name: &str, content: &str) -> Calligraphy {
+    Calligraphy {
+      user_id,
+      user_name: user_name.to_string(),
+      content: content.to_string(),
+      ip_address: None,
+      user_agent: None,
+      accept_language: None,
+      created_at: OffsetDateTime::now_utc(),
+      updated_at: OffsetDateTime::now_utc(),
+    }
+  }
 
   /// upsertハンドラーのテスト
   #[tokio::test]
@@ -116,18 +141,7 @@ mod tests {
     let user_name = "テストユーザー".to_string();
     let content = "Test Content".to_string();
 
-    let expected_calligraphy = Calligraphy {
-      user_id,
-      user_name: user_name.clone(),
-      content: content.clone(),
-      ip_address: Some(IpNetwork::from(IpAddr::V4(std::net::Ipv4Addr::new(
-        127, 0, 0, 1,
-      )))),
-      user_agent: None,
-      accept_language: None,
-      created_at: OffsetDateTime::now_utc(),
-      updated_at: OffsetDateTime::now_utc(),
-    };
+    let expected_calligraphy = create_dummy_calligraphy(user_id, &user_name, &content);
     let returned_calligraphy = expected_calligraphy.clone();
 
     mock_repo
@@ -164,16 +178,7 @@ mod tests {
     let user_name = "テストユーザー".to_string();
     let content = "List Item".to_string();
 
-    let expected_calligraphy = Calligraphy {
-      user_id,
-      user_name: user_name.clone(),
-      content: content.clone(),
-			ip_address: None,
-      user_agent: None,
-      accept_language: None,
-      created_at: OffsetDateTime::now_utc(),
-      updated_at: OffsetDateTime::now_utc(),
-    };
+    let expected_calligraphy = create_dummy_calligraphy(user_id, &user_name, &content);
 
     mock_repo
       .expect_find_all()
@@ -183,7 +188,7 @@ mod tests {
     let service = CalligraphyService::new(mock_repo);
     let state = State(service);
     let client_ip = ClientIp(Some("127.0.0.1".parse().unwrap()));
-    let response = list(state, client_ip).await;
+    let response = list(state, AuthUser { id: Uuid::new_v4() }, client_ip).await;
 
     assert!(response.is_ok());
   }
@@ -196,16 +201,7 @@ mod tests {
     let user_name = "テストユーザー".to_string();
     let content = "Get Item".to_string();
 
-    let expected_calligraphy = Calligraphy {
-      user_id,
-      user_name: user_name.clone(),
-      content: content.clone(),
-			ip_address: None,
-      user_agent: None,
-      accept_language: None,
-      created_at: OffsetDateTime::now_utc(),
-      updated_at: OffsetDateTime::now_utc(),
-    };
+    let expected_calligraphy = create_dummy_calligraphy(user_id, &user_name, &content);
 
     mock_repo
       .expect_find_by_id()
@@ -283,16 +279,7 @@ mod tests {
       .expect_create()
       .times(2) // 2回だけ呼ばれるはず
       .returning(move |uid, uname, c, _ip, _ua, _al| {
-        Ok(Calligraphy {
-          user_id: uid,
-          user_name: uname,
-          content: c,
-          ip_address: None,
-          user_agent: None,
-          accept_language: None,
-          created_at: OffsetDateTime::now_utc(),
-          updated_at: OffsetDateTime::now_utc(),
-        })
+        Ok(create_dummy_calligraphy(uid, &uname, &c))
       });
 
     // MockをArcでラップしてClone可能にする
@@ -364,11 +351,11 @@ mod tests {
     let state = State(service);
 
     // 1回目: 成功
-    let response1 = list(state.clone(), ClientIp(Some("10.0.0.1".parse().unwrap()))).await;
+    let response1 = list(state.clone(), AuthUser { id: Uuid::new_v4() }, ClientIp(Some("10.0.0.1".parse().unwrap()))).await;
     assert!(response1.is_ok());
 
     // 2回目: 失敗 (TooManyRequests)
-    let response2 = list(state.clone(), ClientIp(Some("10.0.0.1".parse().unwrap()))).await;
+    let response2 = list(state.clone(), AuthUser { id: Uuid::new_v4() }, ClientIp(Some("10.0.0.1".parse().unwrap()))).await;
     match response2 {
       Err(AppError::TooManyRequests) => assert!(true),
       _ => assert!(false, "Should return TooManyRequests error"),

@@ -92,7 +92,7 @@ function App() {
 			<div className={`app ${showContent ? 'show' : ''}`}>
 				<h1>書き初め</h1>
 				<h3>2026年  丙午<br/>あけましておめでとうございます</h3>
-				<p>せっかくなので、今年の抱負を書き初めにしてみてはいかがでしょうか。<br/>私の去年の抱負は「英語を話す」でした。</p>
+				<p>せっかくなので、今年の抱負を書き初めにしてみてはいかがでしょうか。<br/>本サイトのSNSへの共有はお控えください。<br/>ご友人方とのご共有に留めていただけると私のPCが生き延びます。</p>
 
 				{/* 一覧表示 */}
 				<section className="list-section">
@@ -104,11 +104,11 @@ function App() {
 					)}
 
 					<div className="card-grid">
-						{list?.map((item) => {
-							const isMyCard = myCalligraphy?.user_id === item.user_id;
+						{list?.map((item, index) => {
+							const isMyCard = item.is_mine;
 							return (
 								<CalligraphyCard 
-									key={item.user_id} 
+									key={index} 
 									calligraphy={item} 
 									isMine={isMyCard}
 									onClick={isMyCard ? handleOpenModal : undefined}

@@ -5,12 +5,12 @@ node.jsの定期的な更新など pull
 
 隠し要素
 
-ふつうにuser_id全取得あるから、cookie書き換えて全削除できますねぇこれ、脆弱脆弱ぅ
 DBのデータこっち側にあるの訳分かんねぇだろ、varにやろうぜ
 
 管理画面あった方が不適切書き込み削除しやすい
 
 いいね機能とかつけたい
+NGワードフィルターは身内用だしなぁ...
 
 ubutnuのwakeonlanはやった方がいいとは思ってる
 開発用のDBとかテスト用のDBとか本番用のDBを分けた方がいいことは知ってる
@@ -223,10 +223,12 @@ curl -v -c cookie.txt \
 ```
 - 返答
 ```bash
-# curl -v -c cookie.txt \
+root@d62fd47dbfe6:/app# curl -v -c cookie.txt \
   -X POST http://backend:3000/api/calligraphy \
   -H "Content-Type: application/json" \
-> > >   -d '{"user_name": "Test User", "content": "初回：テスト書き初め"}'
+  -d '{"user_name": "Test User", "content": "\345\210\235\345\233\236\357\274\232\343\203\206\3
+43\202\271\343\203\210\346\233\270\343\201\215\345\210\235\343\202\201"
+}'
 Note: Unnecessary use of -X or --request, POST is already inferred.
 *   Trying 172.18.0.4:3000...
 * Connected to backend (172.18.0.4) port 3000 (#0)
@@ -236,16 +238,15 @@ Note: Unnecessary use of -X or --request, POST is already inferred.
 > Accept: */*
 > Content-Type: application/json
 > Content-Length: 71
->
+> 
 < HTTP/1.1 200 OK
 < content-type: application/json
-* Added cookie calli_user_id="c0459e36-f443-4e26-bdee-c3f6b443b2d7" for domain backend, path /, expire 1798459460
-< set-cookie: calli_user_id=c0459e36-f443-4e26-bdee-c3f6b443b2d7; HttpOnly; SameSite=Lax; Path=/; Max-Age=31536000
-< content-length: 215
-< date: Sun, 28 Dec 2025 12:04:20 GMT
-<
+< set-cookie: calli_user_id=219296af-6f5e-4b56-968d-9f22ac3ac7cb; HttpOnly; SameSite=Lax; Secure; Path=/; Max-Age=31536000
+< content-length: 181
+< date: Mon, 29 Dec 2025 01:18:15 GMT
+< 
 * Connection #0 to host backend left intact
-{"user_id":"c0459e36-f443-4e26-bdee-c3f6b443b2d7","user_name":"Test User","content":"初回：テスト書き初め","created_at":"+002025-12-28T12:04:20.422350000Z","updated_at":"+002025-12-28T12:04:20.422350000Z"}
+{"user_name":"Test User","content":"初回：テスト書き初め","created_at":"+002025-12-29T01:18:15.179397000Z","updated_at":"+002025-12-29T01:18:15.179397000Z","is_mine":true}
 ```
 - 全件取得
 ```bash

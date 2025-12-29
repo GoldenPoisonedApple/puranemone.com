@@ -363,3 +363,13 @@
   font-weight: bold;
 }
 
+
+.modal-warning {
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  margin-bottom: 1.5rem;
+  padding: 0.75rem;
+  background-color: rgba(0, 0, 0, 0.03);
+  border-radius: 4px;
+  line-height: 1.5;
+}

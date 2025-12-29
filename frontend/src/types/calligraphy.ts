@@ -2,11 +2,11 @@
  * 書き初めデータの型定義
  */
 export interface Calligraphy {
-	user_id: string;
 	user_name: string;
 	content: string;
 	created_at: string;
 	updated_at: string;
+	is_mine: boolean;
 }
 
 /**
