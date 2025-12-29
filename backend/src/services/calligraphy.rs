@@ -2,6 +2,7 @@ use crate::error::AppError;
 use crate::models::calligraphy::Calligraphy;
 use crate::repositories::db_repository::CalligraphyRepositoryTrait;
 use moka::future::Cache;
+use sqlx::types::ipnetwork::IpNetwork;
 use std::time::Duration;
 use uuid::Uuid;
 
@@ -11,7 +12,7 @@ use uuid::Uuid;
 pub struct CalligraphyService<R: CalligraphyRepositoryTrait> {
   repository: R,
   write_limit_cache: Cache<String, ()>, // 書き込み制限用
-  read_limit_cache: Cache<String, ()>,  // 読み込み制限用（追加）
+  read_limit_cache: Cache<String, ()>,  // 読み込み制限用
 }
 
 const WRITE_LIMIT_DURATION: Duration = Duration::from_secs(3);
@@ -59,6 +60,9 @@ impl<R: CalligraphyRepositoryTrait> CalligraphyService<R> {
     user_id: Uuid,
     user_name: String,
     content: String,
+    ip_address: Option<IpNetwork>,
+    user_agent: Option<String>,
+    accept_language: Option<String>,
   ) -> Result<Calligraphy, AppError> {
     // バリデーション例 (DBのCHECK制約もあるが、アプリ側でも弾く場合)
     if content.chars().count() > 50 {
@@ -73,7 +77,17 @@ impl<R: CalligraphyRepositoryTrait> CalligraphyService<R> {
     }
 
     // Repositoryの呼び出し。
-    let calligraphy = self.repository.create(user_id, user_name, content).await?;
+    let calligraphy = self
+      .repository
+      .create(
+        user_id,
+        user_name,
+        content,
+        ip_address,
+        user_agent,
+        accept_language,
+      )
+      .await?;
     Ok(calligraphy)
   }
 
@@ -110,6 +124,8 @@ impl<R: CalligraphyRepositoryTrait> CalligraphyService<R> {
 mod tests {
   use super::*;
   use crate::repositories::db_repository::MockCalligraphyRepositoryTrait;
+  use sqlx::types::ipnetwork::IpNetwork;
+  use std::net::IpAddr;
   use time::OffsetDateTime;
 
   /// 書き初めサービスの単体テスト
@@ -119,10 +135,14 @@ mod tests {
     let user_id = Uuid::new_v4();
     let user_name = "テストユーザー".to_string();
     let content = "Happy New Year".to_string();
+    let ip_address = Some(IpNetwork::from(IpAddr::V4(std::net::Ipv4Addr::new(127, 0, 0, 1))));
     let expected_calligraphy = Calligraphy {
       user_id,
       user_name: user_name.clone(),
       content: content.clone(),
+      ip_address: ip_address.clone(),
+      user_agent: None,
+      accept_language: None,
       created_at: OffsetDateTime::now_utc(),
       updated_at: OffsetDateTime::now_utc(),
     };
@@ -134,11 +154,16 @@ mod tests {
         mockall::predicate::eq(user_id),
         mockall::predicate::eq(user_name.clone()),
         mockall::predicate::eq(content.clone()),
+        mockall::predicate::eq(ip_address),
+        mockall::predicate::eq(None),
+        mockall::predicate::eq(None),
       )
       .times(1)
-      .returning(move |_, _, _| Ok(returned_calligraphy.clone()));
+      .returning(move |_, _, _, _, _, _| Ok(returned_calligraphy.clone()));
     let service = CalligraphyService::new(mock_repo);
-    let result = service.upsert(user_id, user_name.clone(), content).await;
+    let result = service
+      .upsert(user_id, user_name.clone(), content, ip_address, None, None)
+      .await;
 
     assert!(result.is_ok());
     assert_eq!(result.as_ref().unwrap().user_name, user_name);
@@ -153,8 +178,11 @@ mod tests {
     let user_id = Uuid::new_v4();
     let long_content = "a".repeat(51);
     let user_name = "テストユーザー".to_string();
+    let ip_address = Some(IpNetwork::from(IpAddr::V4(std::net::Ipv4Addr::new(127, 0, 0, 1))));
 
-    let result = service.upsert(user_id, user_name, long_content).await;
+    let result = service
+      .upsert(user_id, user_name, long_content, ip_address, None, None)
+      .await;
 
     assert!(matches!(result, Err(AppError::Validation(_))));
   }
@@ -167,8 +195,11 @@ mod tests {
     let user_id = Uuid::new_v4();
     let content = "Valid content".to_string();
     let long_user_name = "a".repeat(21);
+    let ip_address = Some(IpNetwork::from(IpAddr::V4(std::net::Ipv4Addr::new(127, 0, 0, 1))));
 
-    let result = service.upsert(user_id, long_user_name, content).await;
+    let result = service
+      .upsert(user_id, long_user_name, content, ip_address, None, None)
+      .await;
 
     assert!(matches!(result, Err(AppError::Validation(_))));
   }
@@ -184,6 +215,11 @@ mod tests {
       user_id,
       user_name: user_name.clone(),
       content: content.clone(),
+      ip_address: Some(IpNetwork::from(IpAddr::V4(std::net::Ipv4Addr::new(
+        127, 0, 0, 1,
+      )))),
+      user_agent: None,
+      accept_language: None,
       created_at: OffsetDateTime::now_utc(),
       updated_at: OffsetDateTime::now_utc(),
     };

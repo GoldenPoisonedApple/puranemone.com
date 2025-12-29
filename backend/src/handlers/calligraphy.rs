@@ -1,9 +1,17 @@
-use axum::{extract::State, http::StatusCode, response::IntoResponse, Json};
+use axum::{
+  extract::State,
+  http::StatusCode,
+  response::IntoResponse,
+  Json,
+};
 use serde::Deserialize;
+use sqlx::types::ipnetwork::IpNetwork;
+use std::net::IpAddr;
+use std::str::FromStr;
 
 use crate::{
   error::AppError,
-  extractors::{AuthUser, ClientIp},
+  extractors::{AuthUser, ClientIp, UserAgent, AcceptLanguage},
   repositories::db_repository::CalligraphyRepositoryTrait,
   services::calligraphy::CalligraphyService,
 };
@@ -23,15 +31,30 @@ pub async fn upsert<R: CalligraphyRepositoryTrait>(
   State(service): State<CalligraphyService<R>>, // State(service): Stateのserviceだけ取り出す
   auth_user: AuthUser,
   ClientIp(ip): ClientIp,
+  UserAgent(user_agent): UserAgent,
+  AcceptLanguage(accept_language): AcceptLanguage,
   Json(payload): Json<CreateCalligraphyRequest>,
 ) -> Result<impl IntoResponse, AppError> {
   // IPアドレスによるレート制限チェック
   if ip != "unknown" {
-    service.check_write_rate_limit(ip).await?;
+    service.check_write_rate_limit(ip.clone()).await?;
   }
 
+  let ip_addr = IpAddr::from_str(&ip).unwrap_or_else(|_| {
+    // Fallback if parsing fails (e.g. "unknown")
+    IpAddr::V4(std::net::Ipv4Addr::new(0, 0, 0, 0))
+  });
+  let ip_network = Some(IpNetwork::from(ip_addr));
+
   let calligraphy = service
-    .upsert(auth_user.id, payload.user_name, payload.content)
+    .upsert(
+      auth_user.id,
+      payload.user_name,
+      payload.content,
+      ip_network,
+      user_agent,
+      accept_language,
+    )
     .await?;
   Ok((StatusCode::OK, Json(calligraphy)))
 }
@@ -86,6 +109,8 @@ mod tests {
   use crate::models::calligraphy::Calligraphy;
   use crate::repositories::db_repository::MockCalligraphyRepositoryTrait;
   use async_trait::async_trait;
+  use sqlx::types::ipnetwork::IpNetwork;
+  use std::net::IpAddr;
   use std::sync::Arc;
   use time::OffsetDateTime;
   use uuid::Uuid;
@@ -102,6 +127,11 @@ mod tests {
       user_id,
       user_name: user_name.clone(),
       content: content.clone(),
+      ip_address: Some(IpNetwork::from(IpAddr::V4(std::net::Ipv4Addr::new(
+        127, 0, 0, 1,
+      )))),
+      user_agent: None,
+      accept_language: None,
       created_at: OffsetDateTime::now_utc(),
       updated_at: OffsetDateTime::now_utc(),
     };
@@ -113,9 +143,12 @@ mod tests {
         mockall::predicate::eq(user_id),
         mockall::predicate::eq(user_name.clone()),
         mockall::predicate::eq(content.clone()),
+        mockall::predicate::always(), // ip_address
+        mockall::predicate::always(), // user_agent
+        mockall::predicate::always(), // accept_language
       )
       .times(1)
-      .returning(move |_, _, _| Ok(returned_calligraphy.clone()));
+      .returning(move |_, _, _, _, _, _| Ok(returned_calligraphy.clone()));
 
     let service = CalligraphyService::new(mock_repo);
     let state = State(service);
@@ -123,7 +156,9 @@ mod tests {
     let payload = Json(CreateCalligraphyRequest { user_name, content });
     // ダミーIPアドレスを使用
     let client_ip = ClientIp("127.0.0.1".to_string());
-    let response = upsert(state, auth_user, client_ip, payload).await;
+		let user_agent = UserAgent(None);
+		let accept_language = AcceptLanguage(None);
+    let response = upsert(state, auth_user, client_ip, user_agent, accept_language, payload).await;
 
     assert!(response.is_ok());
   }
@@ -140,6 +175,9 @@ mod tests {
       user_id,
       user_name: user_name.clone(),
       content: content.clone(),
+			ip_address: None,
+      user_agent: None,
+      accept_language: None,
       created_at: OffsetDateTime::now_utc(),
       updated_at: OffsetDateTime::now_utc(),
     };
@@ -169,6 +207,9 @@ mod tests {
       user_id,
       user_name: user_name.clone(),
       content: content.clone(),
+			ip_address: None,
+      user_agent: None,
+      accept_language: None,
       created_at: OffsetDateTime::now_utc(),
       updated_at: OffsetDateTime::now_utc(),
     };
@@ -219,8 +260,11 @@ mod tests {
       user_id: Uuid,
       user_name: String,
       content: String,
+			ip_address: Option<IpNetwork>,
+      user_agent: Option<String>,
+      accept_language: Option<String>,
     ) -> Result<Calligraphy, sqlx::Error> {
-      self.as_ref().create(user_id, user_name, content).await
+      self.as_ref().create(user_id, user_name, content, ip_address, user_agent, accept_language).await
     }
     async fn find_all(&self) -> Result<Vec<Calligraphy>, sqlx::Error> {
       self.as_ref().find_all().await
@@ -245,11 +289,14 @@ mod tests {
     mock_repo
       .expect_create()
       .times(2) // 2回だけ呼ばれるはず
-      .returning(move |uid, uname, c| {
+      .returning(move |uid, uname, c, _ip, _ua, _al| {
         Ok(Calligraphy {
           user_id: uid,
           user_name: uname,
           content: c,
+          ip_address: None,
+          user_agent: None,
+          accept_language: None,
           created_at: OffsetDateTime::now_utc(),
           updated_at: OffsetDateTime::now_utc(),
         })
@@ -257,13 +304,15 @@ mod tests {
 
     // MockをArcでラップしてClone可能にする
     let service = CalligraphyService::new(Arc::new(mock_repo));
-    let state = State(service); // serviceはCloneされるので、状態（キャッシュ）は共有される
+    let state = State(service); // serviceはCloneされるので、状態（キャッシュ）は共有され
 
     // 1回目: 成功するはず
     let response1 = upsert(
       state.clone(),
       AuthUser { id: user_id },
       ClientIp("192.168.1.1".to_string()),
+			UserAgent(None),
+			AcceptLanguage(None),
       Json(CreateCalligraphyRequest {
         user_name: user_name.clone(),
         content: content.clone(),
@@ -277,6 +326,8 @@ mod tests {
       state.clone(),
       AuthUser { id: user_id },
       ClientIp("192.168.1.1".to_string()),
+			UserAgent(None),
+			AcceptLanguage(None),
       Json(CreateCalligraphyRequest {
         user_name: user_name.clone(),
         content: content.clone(),
@@ -294,6 +345,8 @@ mod tests {
       state.clone(),
       AuthUser { id: user_id },
       ClientIp("192.168.1.2".to_string()), // IPを変更
+			UserAgent(None),
+			AcceptLanguage(None),
       Json(CreateCalligraphyRequest {
         user_name: user_name.clone(),
         content: content.clone(),

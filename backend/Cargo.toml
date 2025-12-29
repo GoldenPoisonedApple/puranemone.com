@@ -17,7 +17,7 @@ axum = "0.7"
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 # DB
-sqlx = { version = "0.8", features = ["runtime-tokio", "tls-native-tls", "postgres", "uuid", "time"] }
+sqlx = { version = "0.8", features = ["runtime-tokio", "tls-native-tls", "postgres", "uuid", "time", "ipnetwork"] }
 uuid = { version = "1.19.0", features = ["serde", "v4"] }
 time = { version = "0.3.44", features = ["serde-human-readable", "macros", "formatting", "parsing"] }
 thiserror = "2.0.17"

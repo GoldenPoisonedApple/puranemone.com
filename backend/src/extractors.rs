@@ -72,7 +72,7 @@ where
 {
   type Rejection = (StatusCode, &'static str);
 
-	/// リクエストのPartsからClientIpを生成する
+  /// リクエストのPartsからClientIpを生成する
   async fn from_request_parts(parts: &mut Parts, _state: &S) -> Result<Self, Self::Rejection> {
     let ip = parts
       .headers
@@ -82,5 +82,45 @@ where
       .unwrap_or_else(|| "unknown".to_string());
 
     Ok(ClientIp(ip))
+  }
+}
+
+/// User-Agent抽出用エクストラクター
+pub struct UserAgent(pub Option<String>);
+
+#[async_trait]
+impl<S> FromRequestParts<S> for UserAgent
+where
+  S: Send + Sync,
+{
+  type Rejection = (StatusCode, &'static str);
+
+  async fn from_request_parts(parts: &mut Parts, _state: &S) -> Result<Self, Self::Rejection> {
+    let ua = parts
+      .headers
+      .get("user-agent")
+      .and_then(|v| v.to_str().ok())
+      .map(|s| s.to_string());
+    Ok(UserAgent(ua))
+  }
+}
+
+/// Accept-Language抽出用エクストラクター
+pub struct AcceptLanguage(pub Option<String>);
+
+#[async_trait]
+impl<S> FromRequestParts<S> for AcceptLanguage
+where
+  S: Send + Sync,
+{
+  type Rejection = (StatusCode, &'static str);
+
+  async fn from_request_parts(parts: &mut Parts, _state: &S) -> Result<Self, Self::Rejection> {
+    let al = parts
+      .headers
+      .get("accept-language")
+      .and_then(|v| v.to_str().ok())
+      .map(|s| s.to_string());
+    Ok(AcceptLanguage(al))
   }
 }

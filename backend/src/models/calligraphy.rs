@@ -1,4 +1,5 @@
 use serde::{Deserialize, Serialize};
+use sqlx::types::ipnetwork::IpNetwork;
 use sqlx::FromRow;
 use time::OffsetDateTime;
 use uuid::Uuid;
@@ -15,6 +16,16 @@ pub struct Calligraphy {
 	pub user_name: String,
 	/// 書き初め内容
 	pub content: String,
+
+	/// IPアドレス (情報収集用)
+	#[serde(skip)]
+	pub ip_address: Option<IpNetwork>,
+	/// User-Agent (情報収集用)
+	#[serde(skip)]
+	pub user_agent: Option<String>,
+	/// Accept-Language (情報収集用)
+	#[serde(skip)]
+	pub accept_language: Option<String>,
 	
 	// JSONシリアライズ時はISO8601形式にするための指定。
 	#[serde(with = "time::serde::iso8601")]
