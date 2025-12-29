@@ -2,6 +2,9 @@
 // リクエストがハンドラーに到達する前に実行され、必要なデータを抽出・変換してハンドラーに渡す役割を果たす
 // Axumが勝手にねじ込んでくれる
 
+use std::net::IpAddr;
+use std::str::FromStr;
+
 use axum::{
   async_trait,
   extract::FromRequestParts,
@@ -63,7 +66,7 @@ where
 }
 
 /// クライアントIPアドレス抽出用エクストラクター
-pub struct ClientIp(pub String);
+pub struct ClientIp(pub Option<IpAddr>);
 
 #[async_trait]
 impl<S> FromRequestParts<S> for ClientIp
@@ -72,15 +75,55 @@ where
 {
   type Rejection = (StatusCode, &'static str);
 
-	/// リクエストのPartsからClientIpを生成する
+  /// リクエストのPartsからClientIpを生成する
   async fn from_request_parts(parts: &mut Parts, _state: &S) -> Result<Self, Self::Rejection> {
     let ip = parts
       .headers
       .get("x-forwarded-for")
       .and_then(|v| v.to_str().ok())
-      .map(|s| s.split(',').next().unwrap_or(s).trim().to_string())
-      .unwrap_or_else(|| "unknown".to_string());
+      .map(|s| s.split(',').next().unwrap_or(s).trim())
+      .and_then(|s| IpAddr::from_str(s).ok());
 
     Ok(ClientIp(ip))
+  }
+}
+
+/// User-Agent抽出用エクストラクター
+pub struct UserAgent(pub Option<String>);
+
+#[async_trait]
+impl<S> FromRequestParts<S> for UserAgent
+where
+  S: Send + Sync,
+{
+  type Rejection = (StatusCode, &'static str);
+
+  async fn from_request_parts(parts: &mut Parts, _state: &S) -> Result<Self, Self::Rejection> {
+    let ua = parts
+      .headers
+      .get("user-agent")
+      .and_then(|v| v.to_str().ok())
+      .map(|s| s.to_string());
+    Ok(UserAgent(ua))
+  }
+}
+
+/// Accept-Language抽出用エクストラクター
+pub struct AcceptLanguage(pub Option<String>);
+
+#[async_trait]
+impl<S> FromRequestParts<S> for AcceptLanguage
+where
+  S: Send + Sync,
+{
+  type Rejection = (StatusCode, &'static str);
+
+  async fn from_request_parts(parts: &mut Parts, _state: &S) -> Result<Self, Self::Rejection> {
+    let al = parts
+      .headers
+      .get("accept-language")
+      .and_then(|v| v.to_str().ok())
+      .map(|s| s.to_string());
+    Ok(AcceptLanguage(al))
   }
 }

@@ -1,12 +1,21 @@
 use crate::models::calligraphy::Calligraphy;
 use async_trait::async_trait;
+use sqlx::types::ipnetwork::IpNetwork;
 use sqlx::PgPool;
 use uuid::Uuid;
 
 #[cfg_attr(test, mockall::automock)]
 #[async_trait] // 非同期関数を含むトレイト用のマクロ
 pub trait CalligraphyRepositoryTrait: Send + Sync {
-  async fn create(&self, user_id: Uuid, user_name: String, content: String) -> Result<Calligraphy, sqlx::Error>;
+  async fn create(
+    &self,
+    user_id: Uuid,
+    user_name: String,
+    content: String,
+    ip_address: Option<IpNetwork>,
+    user_agent: Option<String>,
+    accept_language: Option<String>,
+  ) -> Result<Calligraphy, sqlx::Error>;
   async fn find_by_id(&self, user_id: Uuid) -> Result<Option<Calligraphy>, sqlx::Error>;
   async fn find_all(&self) -> Result<Vec<Calligraphy>, sqlx::Error>;
   async fn delete(&self, user_id: Uuid) -> Result<u64, sqlx::Error>;
@@ -34,28 +43,45 @@ impl CalligraphyRepositoryTrait for CalligraphyRepository {
   /// * `user_id` - Cookie等から特定されたユーザーID (信頼できる値)
 	/// * `user_name` - ユーザー名 (表示用)
   /// * `content` - ユーザー入力内容
+  /// * `ip_address` - IPアドレス
+  /// * `user_agent` - User-Agent
+  /// * `accept_language` - Accept-Language
   ///
   /// # 戻り値
   /// * `Ok(Calligraphy)` - DBにより生成されたタイムスタンプを含む完全なモデル
-  async fn create(&self, user_id: Uuid, user_name: String, content: String) -> Result<Calligraphy, sqlx::Error> {
+  async fn create(
+    &self,
+    user_id: Uuid,
+    user_name: String,
+    content: String,
+    ip_address: Option<IpNetwork>,
+    user_agent: Option<String>,
+    accept_language: Option<String>,
+  ) -> Result<Calligraphy, sqlx::Error> {
     // query_as! マクロ:
     // コンパイル時にSQL構文と、戻り値(Calligraphy構造体)の型整合性をチェックする。
     // フィールド名とカラム名が完全に一致している必要がある。
     sqlx::query_as!(
       Calligraphy,
       r#"
-						INSERT INTO calligraphy (user_id, user_name, content, updated_at)
-						VALUES ($1, $2, $3, NOW())
+						INSERT INTO calligraphy (user_id, user_name, content, ip_address, user_agent, accept_language, updated_at)
+						VALUES ($1, $2, $3, $4, $5, $6, NOW())
 						ON CONFLICT (user_id)
 						DO UPDATE SET	-- 重複時は内容を上書き
 								user_name = EXCLUDED.user_name,
 								content = EXCLUDED.content,
+								ip_address = EXCLUDED.ip_address,
+								user_agent = EXCLUDED.user_agent,
+								accept_language = EXCLUDED.accept_language,
 								updated_at = NOW()
-						RETURNING user_id, user_name, content, created_at, updated_at
+						RETURNING user_id, user_name, content, ip_address, user_agent, accept_language, created_at, updated_at
 						"#,
       user_id,
       user_name,
       content,
+      ip_address,
+      user_agent,
+      accept_language
     )
     .fetch_one(&self.pool)
     .await
@@ -68,7 +94,7 @@ impl CalligraphyRepositoryTrait for CalligraphyRepository {
     sqlx::query_as!(
       Calligraphy,
       r#"
-						SELECT user_id, user_name, content, created_at, updated_at
+						SELECT user_id, user_name, content, NULL::inet AS ip_address, NULL::text AS user_agent, NULL::varchar AS accept_language, created_at, updated_at
 						FROM calligraphy
 						WHERE user_id = $1
 						"#,
@@ -85,7 +111,7 @@ impl CalligraphyRepositoryTrait for CalligraphyRepository {
     sqlx::query_as!(
       Calligraphy,
       r#"
-            SELECT user_id, user_name, content, created_at, updated_at
+            SELECT user_id, user_name, content, NULL::inet AS ip_address, NULL::text AS user_agent, NULL::varchar AS accept_language, created_at, updated_at
             FROM calligraphy
             ORDER BY created_at DESC
             LIMIT 100 -- 安全のため上限を設定（必要に応じてページネーションに変更）
@@ -142,7 +168,7 @@ mod tests {
 
     // --- Test A: 新規作成 (Create/Upsert) ---
     let created = repository
-      .create(user_id, user_name_1.clone(), content_1.to_string())
+      .create(user_id, user_name_1.clone(), content_1.to_string(), None, None, None)
       .await
       .expect("Failed to create calligraphy");
 
@@ -164,7 +190,7 @@ mod tests {
 
     // --- Test C: 更新確認 (Upsert Update) ---
     let updated = repository
-      .create(user_id, user_name_2.clone(), content_2.to_string())
+      .create(user_id, user_name_2.clone(), content_2.to_string(), None, None, None)
       .await
       .expect("Failed to update calligraphy");
 

@@ -5,6 +5,7 @@ import { useMyCalligraphy, useCalligraphySubmit, useCalligraphyDelete } from './
 import { Opening } from './components/Opening';
 import { FloatingButton } from './components/FloatingButton';
 import { CalligraphyModal } from './components/CalligraphyModal';
+import { PrivacyPolicyModal } from './components/PrivacyPolicyModal';
 import { CalligraphyCard } from './components/CalligraphyCard';
 import { Footer } from './components/Footer';
 import type { CreateCalligraphyRequest } from './types/calligraphy';
@@ -17,6 +18,7 @@ function App() {
 	const [showOpening, setShowOpening] = useState(true);
 	const [showContent, setShowContent] = useState(false);
 	const [isModalOpen, setIsModalOpen] = useState(false);
+	const [isPrivacyOpen, setIsPrivacyOpen] = useState(false);
 	const [submitError, setSubmitError] = useState<string | null>(null);
 
 	// 全ての書き初め一覧を取得
@@ -117,7 +119,7 @@ function App() {
 				</section>
 
 				{/* フッター */}
-				{showContent && <Footer />}
+				{showContent && <Footer onOpenPrivacyPolicy={() => setIsPrivacyOpen(true)} />}
 			</div>
 
 			{/* フローティングボタン */}
@@ -137,6 +139,11 @@ function App() {
 				} : undefined}
 				isEdit={!!myCalligraphy}
 				serverError={submitError}
+			/>
+
+			<PrivacyPolicyModal 
+				isOpen={isPrivacyOpen} 
+				onClose={() => setIsPrivacyOpen(false)} 
 			/>
 		</>
 	);

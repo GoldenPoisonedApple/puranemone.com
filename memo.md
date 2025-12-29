@@ -1,23 +1,20 @@
 # ToDo
 DBのセキュリティ設定
-
 node.jsの定期的な更新など pull
-
 アプリ用のユーザは開発用と分けた方がいい(DB): 基本操作（SELECT, INSERT, UPDATE, DELETE）のみ
 
 隠し要素
 
-ユーザのIPアドレスとか保存したい
+ふつうにuser_id全取得あるから、cookie書き換えて全削除できますねぇこれ、脆弱脆弱ぅ
+DBのデータこっち側にあるの訳分かんねぇだろ、varにやろうぜ
+
 管理画面あった方が不適切書き込み削除しやすい
 
 いいね機能とかつけたい
 
 ubutnuのwakeonlanはやった方がいいとは思ってる
-
 開発用のDBとかテスト用のDBとか本番用のDBを分けた方がいいことは知ってる
-
 rust側定数（レート制限の秒数、キャッシュのTTL、Cookieの有効期限など）がコード内に散らばっているので、config.rs モジュールを作成し、環境変数（env）またはデフォルト値から設定構造体を読み込むようにする。
-
 
 ## その他メモ
 ユーザはクッキーの情報を元に認証
@@ -43,6 +40,7 @@ limit_req_zone $binary_remote_addr zone=api_limit:10m rate=10r/s;
 
 書き込み(3秒に一回)、読み込み(1秒に一回)のレート制限を設けることによってDBを保護
 現在はバックのリポジトリで全件取得は100件までに制限している
+DBのプール数は30
 
 ## 技術メモ
 ### docker conpose
@@ -248,6 +246,10 @@ Note: Unnecessary use of -X or --request, POST is already inferred.
 <
 * Connection #0 to host backend left intact
 {"user_id":"c0459e36-f443-4e26-bdee-c3f6b443b2d7","user_name":"Test User","content":"初回：テスト書き初め","created_at":"+002025-12-28T12:04:20.422350000Z","updated_at":"+002025-12-28T12:04:20.422350000Z"}
+```
+- 全件取得
+```bash
+curl -X GET http://backend:3000/api/calligraphy
 ```
 
 ## DB

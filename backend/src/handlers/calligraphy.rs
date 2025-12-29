@@ -1,9 +1,15 @@
-use axum::{extract::State, http::StatusCode, response::IntoResponse, Json};
+use axum::{
+  extract::State,
+  http::StatusCode,
+  response::IntoResponse,
+  Json,
+};
 use serde::Deserialize;
+use sqlx::types::ipnetwork::IpNetwork;
 
 use crate::{
   error::AppError,
-  extractors::{AuthUser, ClientIp},
+  extractors::{AuthUser, ClientIp, UserAgent, AcceptLanguage},
   repositories::db_repository::CalligraphyRepositoryTrait,
   services::calligraphy::CalligraphyService,
 };
@@ -23,15 +29,25 @@ pub async fn upsert<R: CalligraphyRepositoryTrait>(
   State(service): State<CalligraphyService<R>>, // State(service): Stateのserviceだけ取り出す
   auth_user: AuthUser,
   ClientIp(ip): ClientIp,
+  UserAgent(user_agent): UserAgent,
+  AcceptLanguage(accept_language): AcceptLanguage,
   Json(payload): Json<CreateCalligraphyRequest>,
 ) -> Result<impl IntoResponse, AppError> {
   // IPアドレスによるレート制限チェック
-  if ip != "unknown" {
-    service.check_write_rate_limit(ip).await?;
+  if let Some(ip_addr) = ip {
+    service.check_write_rate_limit(ip_addr).await?;
   }
 
+  let ip_network = ip.map(IpNetwork::from);
   let calligraphy = service
-    .upsert(auth_user.id, payload.user_name, payload.content)
+    .upsert(
+      auth_user.id,
+      payload.user_name,
+      payload.content,
+      ip_network,
+      user_agent,
+      accept_language,
+    )
     .await?;
   Ok((StatusCode::OK, Json(calligraphy)))
 }
@@ -42,8 +58,8 @@ pub async fn list<R: CalligraphyRepositoryTrait>(
   ClientIp(ip): ClientIp,
 ) -> Result<impl IntoResponse, AppError> {
   // IPアドレスによるレート制限チェック
-  if ip != "unknown" {
-    service.check_read_rate_limit(ip).await?;
+  if let Some(ip_addr) = ip {
+    service.check_read_rate_limit(ip_addr).await?;
   }
 
   let list = service.get_all().await?;
@@ -57,8 +73,8 @@ pub async fn get<R: CalligraphyRepositoryTrait>(
   ClientIp(ip): ClientIp,
 ) -> Result<impl IntoResponse, AppError> {
   // IPアドレスによるレート制限チェック
-  if ip != "unknown" {
-    service.check_read_rate_limit(ip).await?;
+  if let Some(ip_addr) = ip {
+    service.check_read_rate_limit(ip_addr).await?;
   }
 
   let calligraphy = service.get(auth_user.id).await?;
@@ -72,8 +88,8 @@ pub async fn delete<R: CalligraphyRepositoryTrait>(
   ClientIp(ip): ClientIp,
 ) -> Result<impl IntoResponse, AppError> {
   // IPアドレスによるレート制限チェック
-  if ip != "unknown" {
-    service.check_write_rate_limit(ip).await?;
+  if let Some(ip_addr) = ip {
+    service.check_write_rate_limit(ip_addr).await?;
   }
 
   service.delete(auth_user.id).await?;
@@ -86,6 +102,8 @@ mod tests {
   use crate::models::calligraphy::Calligraphy;
   use crate::repositories::db_repository::MockCalligraphyRepositoryTrait;
   use async_trait::async_trait;
+  use sqlx::types::ipnetwork::IpNetwork;
+  use std::net::IpAddr;
   use std::sync::Arc;
   use time::OffsetDateTime;
   use uuid::Uuid;
@@ -102,6 +120,11 @@ mod tests {
       user_id,
       user_name: user_name.clone(),
       content: content.clone(),
+      ip_address: Some(IpNetwork::from(IpAddr::V4(std::net::Ipv4Addr::new(
+        127, 0, 0, 1,
+      )))),
+      user_agent: None,
+      accept_language: None,
       created_at: OffsetDateTime::now_utc(),
       updated_at: OffsetDateTime::now_utc(),
     };
@@ -113,17 +136,22 @@ mod tests {
         mockall::predicate::eq(user_id),
         mockall::predicate::eq(user_name.clone()),
         mockall::predicate::eq(content.clone()),
+        mockall::predicate::always(), // ip_address
+        mockall::predicate::always(), // user_agent
+        mockall::predicate::always(), // accept_language
       )
       .times(1)
-      .returning(move |_, _, _| Ok(returned_calligraphy.clone()));
+      .returning(move |_, _, _, _, _, _| Ok(returned_calligraphy.clone()));
 
     let service = CalligraphyService::new(mock_repo);
     let state = State(service);
     let auth_user = AuthUser { id: user_id };
     let payload = Json(CreateCalligraphyRequest { user_name, content });
     // ダミーIPアドレスを使用
-    let client_ip = ClientIp("127.0.0.1".to_string());
-    let response = upsert(state, auth_user, client_ip, payload).await;
+    let client_ip = ClientIp(Some("127.0.0.1".parse().unwrap()));
+		let user_agent = UserAgent(None);
+		let accept_language = AcceptLanguage(None);
+    let response = upsert(state, auth_user, client_ip, user_agent, accept_language, payload).await;
 
     assert!(response.is_ok());
   }
@@ -140,6 +168,9 @@ mod tests {
       user_id,
       user_name: user_name.clone(),
       content: content.clone(),
+			ip_address: None,
+      user_agent: None,
+      accept_language: None,
       created_at: OffsetDateTime::now_utc(),
       updated_at: OffsetDateTime::now_utc(),
     };
@@ -151,7 +182,7 @@ mod tests {
 
     let service = CalligraphyService::new(mock_repo);
     let state = State(service);
-    let client_ip = ClientIp("127.0.0.1".to_string());
+    let client_ip = ClientIp(Some("127.0.0.1".parse().unwrap()));
     let response = list(state, client_ip).await;
 
     assert!(response.is_ok());
@@ -169,6 +200,9 @@ mod tests {
       user_id,
       user_name: user_name.clone(),
       content: content.clone(),
+			ip_address: None,
+      user_agent: None,
+      accept_language: None,
       created_at: OffsetDateTime::now_utc(),
       updated_at: OffsetDateTime::now_utc(),
     };
@@ -182,7 +216,7 @@ mod tests {
     let service = CalligraphyService::new(mock_repo);
     let state = State(service);
     let auth_user = AuthUser { id: user_id };
-    let client_ip = ClientIp("127.0.0.1".to_string());
+    let client_ip = ClientIp(Some("127.0.0.1".parse().unwrap()));
     let response = get(state, auth_user, client_ip).await;
 
     assert!(response.is_ok());
@@ -203,7 +237,7 @@ mod tests {
     let service = CalligraphyService::new(mock_repo);
     let state = State(service);
     let auth_user = AuthUser { id: user_id };
-    let client_ip = ClientIp("127.0.0.1".to_string());
+    let client_ip = ClientIp(Some("127.0.0.1".parse().unwrap()));
     let response = delete(state, auth_user, client_ip).await;
 
     assert!(response.is_ok());
@@ -219,8 +253,11 @@ mod tests {
       user_id: Uuid,
       user_name: String,
       content: String,
+			ip_address: Option<IpNetwork>,
+      user_agent: Option<String>,
+      accept_language: Option<String>,
     ) -> Result<Calligraphy, sqlx::Error> {
-      self.as_ref().create(user_id, user_name, content).await
+      self.as_ref().create(user_id, user_name, content, ip_address, user_agent, accept_language).await
     }
     async fn find_all(&self) -> Result<Vec<Calligraphy>, sqlx::Error> {
       self.as_ref().find_all().await
@@ -245,11 +282,14 @@ mod tests {
     mock_repo
       .expect_create()
       .times(2) // 2回だけ呼ばれるはず
-      .returning(move |uid, uname, c| {
+      .returning(move |uid, uname, c, _ip, _ua, _al| {
         Ok(Calligraphy {
           user_id: uid,
           user_name: uname,
           content: c,
+          ip_address: None,
+          user_agent: None,
+          accept_language: None,
           created_at: OffsetDateTime::now_utc(),
           updated_at: OffsetDateTime::now_utc(),
         })
@@ -257,13 +297,15 @@ mod tests {
 
     // MockをArcでラップしてClone可能にする
     let service = CalligraphyService::new(Arc::new(mock_repo));
-    let state = State(service); // serviceはCloneされるので、状態（キャッシュ）は共有される
+    let state = State(service); // serviceはCloneされるので、状態（キャッシュ）は共有され
 
     // 1回目: 成功するはず
     let response1 = upsert(
       state.clone(),
       AuthUser { id: user_id },
-      ClientIp("192.168.1.1".to_string()),
+      ClientIp(Some("192.168.1.1".parse().unwrap())),
+			UserAgent(None),
+			AcceptLanguage(None),
       Json(CreateCalligraphyRequest {
         user_name: user_name.clone(),
         content: content.clone(),
@@ -276,7 +318,9 @@ mod tests {
     let response2 = upsert(
       state.clone(),
       AuthUser { id: user_id },
-      ClientIp("192.168.1.1".to_string()),
+      ClientIp(Some("192.168.1.1".parse().unwrap())),
+			UserAgent(None),
+			AcceptLanguage(None),
       Json(CreateCalligraphyRequest {
         user_name: user_name.clone(),
         content: content.clone(),
@@ -293,7 +337,9 @@ mod tests {
     let res3 = upsert(
       state.clone(),
       AuthUser { id: user_id },
-      ClientIp("192.168.1.2".to_string()), // IPを変更
+      ClientIp(Some("192.168.1.2".parse().unwrap())), // IPを変更
+			UserAgent(None),
+			AcceptLanguage(None),
       Json(CreateCalligraphyRequest {
         user_name: user_name.clone(),
         content: content.clone(),
@@ -318,11 +364,11 @@ mod tests {
     let state = State(service);
 
     // 1回目: 成功
-    let response1 = list(state.clone(), ClientIp("10.0.0.1".to_string())).await;
+    let response1 = list(state.clone(), ClientIp(Some("10.0.0.1".parse().unwrap()))).await;
     assert!(response1.is_ok());
 
     // 2回目: 失敗 (TooManyRequests)
-    let response2 = list(state.clone(), ClientIp("10.0.0.1".to_string())).await;
+    let response2 = list(state.clone(), ClientIp(Some("10.0.0.1".parse().unwrap()))).await;
     match response2 {
       Err(AppError::TooManyRequests) => assert!(true),
       _ => assert!(false, "Should return TooManyRequests error"),

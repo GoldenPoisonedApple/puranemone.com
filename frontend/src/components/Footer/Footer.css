@@ -77,6 +77,15 @@
   border-bottom-color: var(--color-gold-light);
 }
 
+button.footer-link {
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  cursor: pointer;
+  border-bottom: 1px solid transparent;
+}
+
 .footer-text {
   font-size: 0.8rem;
   color: var(--color-sumi-light);
