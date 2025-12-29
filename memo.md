@@ -5,7 +5,7 @@ node.jsの定期的な更新など pull
 
 隠し要素
 
-DBのデータこっち側にあるの訳分かんねぇだろ、varにやろうぜ
+初回起動時の動作が不安定。ほぼ確実にGETのエラー
 
 管理画面あった方が不適切書き込み削除しやすい
 
@@ -15,6 +15,7 @@ NGワードフィルターは身内用だしなぁ...
 ubutnuのwakeonlanはやった方がいいとは思ってる
 開発用のDBとかテスト用のDBとか本番用のDBを分けた方がいいことは知ってる
 rust側定数（レート制限の秒数、キャッシュのTTL、Cookieの有効期限など）がコード内に散らばっているので、config.rs モジュールを作成し、環境変数（env）またはデフォルト値から設定構造体を読み込むようにする。
+Dockerfile 内でのテスト実行を、DB接続が不要なテストのみ に限定する必要がある Rustでは通常、DB接続が必要なテストには #[ignore] 属性を付けるか、テスト実行時にフィルタリング
 
 ## その他メモ
 ユーザはクッキーの情報を元に認証
@@ -125,6 +126,11 @@ docker compose -f compose.yaml up -d --build
 特定のものだけリスタート
 ```bash
 docker compose restart frontend
+```
+
+### ボリュームごと削除 かつ キャッシュを使わない
+```bash
+docker compose -f compose.yaml up -d --build --force-recreate
 ```
 
 # コンテナに接続
