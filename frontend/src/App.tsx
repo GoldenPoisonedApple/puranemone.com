@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { calligraphyApi } from './lib/api';
-import { useMyCalligraphy, useCalligraphySubmit, useCalligraphyDelete } from './lib/hooks';
+import { useCalligraphySubmit, useCalligraphyDelete } from './lib/hooks';
 import { Opening } from './components/Opening';
 import { FloatingButton } from './components/FloatingButton';
 import { CalligraphyModal } from './components/CalligraphyModal';
@@ -25,10 +25,11 @@ function App() {
 	const { data: list, isLoading, error } = useQuery({
 		queryKey: ['calligraphy', 'list'],
 		queryFn: calligraphyApi.list,
+		staleTime: 1000 * 60 * 5, // 5分間はキャッシュを使用
 	});
 
-	// 自分の書き初めを取得
-	const { data: myCalligraphy} = useMyCalligraphy();
+	// listから自分の書き初めを抽出
+	const myCalligraphy = list?.find(item => item.is_mine);
 
 	// フォーム送信
 	const { submit, isSubmitting } = useCalligraphySubmit(

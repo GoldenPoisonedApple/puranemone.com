@@ -1,17 +1,6 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { calligraphyApi } from './api';
 import type { CreateCalligraphyRequest, Calligraphy } from '../types/calligraphy';
-
-/**
- * 自分の書き初めを取得するカスタムフック
- */
-export const useMyCalligraphy = () => {
-	return useQuery({
-		queryKey: ['calligraphy', 'mine'],
-		queryFn: calligraphyApi.get,
-		retry: false, // 404の場合はリトライしない
-	});
-};
 
 /**
  * 書き初め投稿用カスタムフック
@@ -22,7 +11,7 @@ export const useCalligraphySubmit = (onSuccess?: (data: Calligraphy) => void, on
 	const mutation = useMutation({
 		mutationFn: calligraphyApi.upsert,
 		onSuccess: (data) => {
-			queryClient.setQueryData(['calligraphy', 'mine'], data);
+			// listを再取得すればis_mineも更新される
 			queryClient.invalidateQueries({ queryKey: ['calligraphy', 'list'] });
 			onSuccess?.(data);
 		},
@@ -50,7 +39,7 @@ export const useCalligraphyDelete = (onSuccess?: () => void, onError?: (error: E
 	const mutation = useMutation({
 		mutationFn: calligraphyApi.delete,
 		onSuccess: () => {
-			queryClient.setQueryData(['calligraphy', 'mine'], null);
+			// listを再取得すればis_mineも更新される
 			queryClient.invalidateQueries({ queryKey: ['calligraphy', 'list'] });
 			onSuccess?.();
 		},

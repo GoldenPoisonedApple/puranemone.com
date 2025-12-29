@@ -41,11 +41,6 @@ export const calligraphyApi = {
 	list: () => client<Calligraphy[]>('/calligraphy'),
 
 	/**
-	 * 自分の書き初めを取得
-	 */
-	get: () => client<Calligraphy>(`/calligraphy/me`),
-
-	/**
 	 * 書き初めを作成・更新
 	 */
 	upsert: (data: CreateCalligraphyRequest) =>
