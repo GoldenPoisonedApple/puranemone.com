@@ -5,7 +5,8 @@
 // API設定
 export const API_CONFIG = {
 	BASE_URL: '/api',
-	STALE_TIME: 1000 * 60 * 5, // 5分
+	STALE_TIME: 60 * 1000, // 60秒はキャッシュを使用
+	REFETCH_INTERVAL: 60 * 1000, // 60秒ごとに自動更新
 } as const;
 
 // フォームバリデーション

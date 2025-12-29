@@ -34,6 +34,8 @@ function App() {
 		queryKey: QUERY_KEYS.CALLIGRAPHY_LIST,
 		queryFn: calligraphyApi.list,
 		staleTime: API_CONFIG.STALE_TIME,
+		refetchInterval: API_CONFIG.REFETCH_INTERVAL, // 30秒ごとに自動更新
+		refetchIntervalInBackground: true, // バックグラウンドでも更新
 	});
 
 	// listから自分の書き初めを抽出（メモ化）

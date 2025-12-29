@@ -35,9 +35,10 @@
 1. 書き初めの一覧表示（縦書き、マルチカラムレイアウト）
 2. 書き初めの投稿・編集・削除
 3. 自分の書き初めの識別とハイライト表示
-4. オープニングアニメーション
-5. モーダルダイアログによる入力・編集
-6. プライバシーポリシー表示
+4. リアルタイム自動更新（60秒ごと、タブフォーカス時）
+5. オープニングアニメーション
+6. モーダルダイアログによる入力・編集
+7. プライバシーポリシー表示
 
 ---
 
@@ -231,8 +232,10 @@ App
 
 #### Query
 - `['calligraphy', 'list']`: 書き初め一覧データ
-  - `staleTime`: 5分
-  - `refetchOnWindowFocus`: false
+  - `staleTime`: 60秒
+  - `refetchInterval`: 60秒（自動更新）
+  - `refetchIntervalInBackground`: true（バックグラウンドでも更新）
+  - `refetchOnWindowFocus`: true（タブに戻ったときに更新）
 
 #### Mutation
 - `useCalligraphySubmit`: 書き初めの投稿・更新
@@ -341,7 +344,8 @@ interface ApiError {
 
 #### API_CONFIG
 - `BASE_URL`: APIのベースURL
-- `STALE_TIME`: React Queryのキャッシュ時間
+- `STALE_TIME`: React Queryのキャッシュ時間（60秒）
+- `REFETCH_INTERVAL`: 自動更新の間隔（60秒）
 
 #### FORM_LIMITS
 - `USER_NAME_MAX_LENGTH`: ユーザー名の最大文字数
@@ -577,7 +581,9 @@ components/CalligraphyModal
 ### React Queryの最適化
 
 - `staleTime`: 5分間キャッシュを使用
-- `refetchOnWindowFocus`: false（不要な再取得を防止）
+- `refetchInterval`: 30秒ごとに自動更新（他の人の投稿を確認）
+- `refetchIntervalInBackground`: バックグラウンドでも更新
+- `refetchOnWindowFocus`: true（タブに戻ったときに更新）
 
 ### キーの最適化
 
