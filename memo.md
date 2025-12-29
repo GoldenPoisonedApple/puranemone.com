@@ -247,6 +247,10 @@ Note: Unnecessary use of -X or --request, POST is already inferred.
 * Connection #0 to host backend left intact
 {"user_id":"c0459e36-f443-4e26-bdee-c3f6b443b2d7","user_name":"Test User","content":"初回：テスト書き初め","created_at":"+002025-12-28T12:04:20.422350000Z","updated_at":"+002025-12-28T12:04:20.422350000Z"}
 ```
+- 全件取得
+```bash
+curl -X GET http://backend:3000/api/calligraphy
+```
 
 ## DB
 ```bash
