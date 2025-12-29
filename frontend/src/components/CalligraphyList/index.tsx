@@ -1,6 +1,7 @@
 import { CalligraphyCard } from '../CalligraphyCard';
 import { MESSAGES } from '../../constants';
 import { generateCardId } from '../../utils/calligraphy';
+import type { Calligraphy } from '../../types/calligraphy';
 import './CalligraphyList.css';
 
 interface CalligraphyListProps {

@@ -20,7 +20,7 @@
 }
 
 .footer-section-title {
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   font-weight: 500;
   color: var(--color-sumi);
   margin: 0 0 0.5rem 0;
@@ -52,7 +52,7 @@
 }
 
 .footer-item {
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   color: var(--color-sumi-light);
   margin: 0.25rem 0;
   line-height: 1.6;
@@ -87,7 +87,7 @@ button.footer-link {
 }
 
 .footer-text {
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   color: var(--color-sumi-light);
   margin: 0.4rem 0;
   line-height: 1.6;
@@ -109,14 +109,14 @@ button.footer-link {
   }
 
   .footer-section-title {
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     margin-bottom: 0.4rem;
     padding-bottom: 0.25rem;
   }
 
   .footer-item,
   .footer-text {
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     line-height: 1.5;
     margin: 0.2rem 0;
   }
