@@ -50,7 +50,8 @@ export const useCalligraphyDelete = (onSuccess?: () => void, onError?: (error: E
 	const mutation = useMutation({
 		mutationFn: calligraphyApi.delete,
 		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: ['calligraphy'] });
+			queryClient.setQueryData(['calligraphy', 'mine'], null);
+			queryClient.invalidateQueries({ queryKey: ['calligraphy', 'list'] });
 			onSuccess?.();
 		},
 		onError: (error: Error) => {
