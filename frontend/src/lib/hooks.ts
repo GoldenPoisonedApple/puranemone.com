@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { calligraphyApi } from './api';
-import type { CreateCalligraphyRequest } from '../types/calligraphy';
+import type { CreateCalligraphyRequest, Calligraphy } from '../types/calligraphy';
 
 /**
  * 自分の書き初めを取得するカスタムフック
@@ -16,14 +16,15 @@ export const useMyCalligraphy = () => {
 /**
  * 書き初め投稿用カスタムフック
  */
-export const useCalligraphySubmit = (onSuccess?: () => void, onError?: (error: Error) => void) => {
+export const useCalligraphySubmit = (onSuccess?: (data: Calligraphy) => void, onError?: (error: Error) => void) => {
 	const queryClient = useQueryClient();
 
 	const mutation = useMutation({
 		mutationFn: calligraphyApi.upsert,
-		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: ['calligraphy'] });
-			onSuccess?.();
+		onSuccess: (data) => {
+			queryClient.setQueryData(['calligraphy', 'mine'], data);
+			queryClient.invalidateQueries({ queryKey: ['calligraphy', 'list'] });
+			onSuccess?.(data);
 		},
 		onError: (error: Error) => {
 			onError?.(error);

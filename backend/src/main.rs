@@ -5,7 +5,7 @@ use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-	const MAX_CONNECTIONS: u32 = 5;
+	const MAX_CONNECTIONS: u32 = 30;
 	const SERVER_PORT: u16 = 3000;
 
 
