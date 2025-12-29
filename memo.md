@@ -43,6 +43,9 @@ limit_req_zone $binary_remote_addr zone=api_limit:10m rate=10r/s;
 現在はバックのリポジトリで全件取得は100件までに制限している
 DBのプール数は30
 
+- フロント側
+自動更新のため60秒に1回フェッチ
+
 ## 技術メモ
 ### docker conpose
 environmentに渡した変数は、環境変数となる
