@@ -1,7 +1,7 @@
 import { useForm } from 'react-hook-form';
 import { useRef } from 'react';
 import { CharacterCounter } from '../CharacterCounter';
-import { FORM_LIMITS } from '../../constants';
+import { FORM_LIMITS, MODAL_TITLES, VALIDATION_MESSAGES } from '../../constants';
 import { useModalEffects } from '../../hooks/useModalEffects';
 import type { CreateCalligraphyRequest } from '../../types/calligraphy';
 import './CalligraphyModal.css';
@@ -74,7 +74,7 @@ export const CalligraphyModal = ({
 				</button>
 				
 				<h2 id="modal-title" className="modal-title">
-					{isEdit ? '書き初めを編集' : '書き初めを奉納'}
+					{isEdit ? MODAL_TITLES.EDIT : MODAL_TITLES.CREATE}
 				</h2>
 
 				{serverError && (
@@ -93,8 +93,8 @@ export const CalligraphyModal = ({
 							type="text"
 							placeholder="お名前を入力"
 							{...register('user_name', {
-								required: '名前を入力してください',
-								maxLength: { value: FORM_LIMITS.USER_NAME_MAX_LENGTH, message: `${FORM_LIMITS.USER_NAME_MAX_LENGTH}文字以内で入力してください` }
+								required: VALIDATION_MESSAGES.USER_NAME_REQUIRED,
+								maxLength: { value: FORM_LIMITS.USER_NAME_MAX_LENGTH, message: VALIDATION_MESSAGES.USER_NAME_MAX_LENGTH(FORM_LIMITS.USER_NAME_MAX_LENGTH) }
 							})}
 							className="modal-input"
 						/>
@@ -114,8 +114,8 @@ export const CalligraphyModal = ({
 							id="content"
 							placeholder={`今年の抱負を入力（${FORM_LIMITS.CONTENT_MAX_LENGTH}文字以内）`}
 							{...register('content', {
-								required: '入力してください',
-								maxLength: { value: FORM_LIMITS.CONTENT_MAX_LENGTH, message: `${FORM_LIMITS.CONTENT_MAX_LENGTH}文字以内で入力してください` }
+								required: VALIDATION_MESSAGES.CONTENT_REQUIRED,
+								maxLength: { value: FORM_LIMITS.CONTENT_MAX_LENGTH, message: VALIDATION_MESSAGES.CONTENT_MAX_LENGTH(FORM_LIMITS.CONTENT_MAX_LENGTH) }
 							})}
 							className="modal-textarea"
 							rows={4}

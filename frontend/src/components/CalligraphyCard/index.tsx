@@ -2,6 +2,7 @@ import { memo } from 'react';
 import type { Calligraphy } from '../../types/calligraphy';
 import { shouldCenterContent, generateCardId } from '../../utils/calligraphy';
 import { formatDate } from '../../utils/formatters';
+import { cn } from '../../utils/className';
 import PenIcon from '../../assets/icons/筆の無料アイコン2.svg';
 import './CalligraphyCard.css';
 
@@ -21,7 +22,12 @@ export const CalligraphyCard = memo(({ calligraphy, isMine = false, onClick }: C
 
 	return (
 		<div 
-			className={`calligraphy-card ${isMine ? 'my-card' : ''} ${isClickable ? 'clickable' : ''} ${isCentered ? 'centered-content' : ''}`}
+			className={cn(
+				'calligraphy-card',
+				isMine && 'my-card',
+				isClickable && 'clickable',
+				isCentered && 'centered-content'
+			)}
 			onClick={isClickable ? onClick : undefined}
 			role={isClickable ? 'button' : undefined}
 			tabIndex={isClickable ? 0 : undefined}

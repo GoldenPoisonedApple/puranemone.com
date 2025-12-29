@@ -32,6 +32,21 @@ export const MESSAGES = {
 	DELETE_ERROR: '書き初めの削除に失敗しました',
 } as const;
 
+// モーダルタイトル
+export const MODAL_TITLES = {
+	EDIT: '書き初めを編集',
+	CREATE: '書き初めを奉納',
+	DELETE_CONFIRM: '削除の確認',
+} as const;
+
+// バリデーションメッセージ
+export const VALIDATION_MESSAGES = {
+	USER_NAME_REQUIRED: '名前を入力してください',
+	USER_NAME_MAX_LENGTH: (max: number) => `${max}文字以内で入力してください`,
+	CONTENT_REQUIRED: '入力してください',
+	CONTENT_MAX_LENGTH: (max: number) => `${max}文字以内で入力してください`,
+} as const;
+
 // クエリキー
 export const QUERY_KEYS = {
 	CALLIGRAPHY_LIST: ['calligraphy', 'list'] as const,

@@ -1,5 +1,5 @@
 import { FORM_LIMITS } from '../constants';
-import type { Calligraphy } from '../types/calligraphy';
+import type { Calligraphy, CreateCalligraphyRequest } from '../types/calligraphy';
 
 /**
  * 書き初めの行数をカウント
@@ -28,4 +28,15 @@ export const findMyCalligraphy = (list: Calligraphy[]): Calligraphy | undefined 
  */
 export const generateCardId = (calligraphy: Calligraphy): string => {
 	return `${calligraphy.user_name}-${calligraphy.created_at}-${calligraphy.updated_at}`;
+};
+
+/**
+ * Calligraphyから初期データ（CreateCalligraphyRequest）を生成
+ */
+export const toInitialData = (calligraphy: Calligraphy | undefined): CreateCalligraphyRequest | undefined => {
+	if (!calligraphy) return undefined;
+	return {
+		user_name: calligraphy.user_name,
+		content: calligraphy.content,
+	};
 };

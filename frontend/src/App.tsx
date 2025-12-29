@@ -7,10 +7,12 @@ import { FloatingButton } from './components/FloatingButton';
 import { CalligraphyModal } from './components/CalligraphyModal';
 import { PrivacyPolicyModal } from './components/PrivacyPolicyModal';
 import { ConfirmDialog } from './components/ConfirmDialog';
-import { CalligraphyCard } from './components/CalligraphyCard';
+import { CalligraphyList } from './components/CalligraphyList';
 import { Footer } from './components/Footer';
-import { API_CONFIG, QUERY_KEYS, MESSAGES, UI_CONFIG } from './constants';
-import { findMyCalligraphy, generateCardId } from './utils/calligraphy';
+import { API_CONFIG, QUERY_KEYS, MESSAGES, UI_CONFIG, MODAL_TITLES } from './constants';
+import { findMyCalligraphy, toInitialData } from './utils/calligraphy';
+import { useErrorHandler } from './hooks/useErrorHandler';
+import { useModalState } from './hooks/useModalState';
 import type { CreateCalligraphyRequest } from './types/calligraphy';
 import './App.css';
 
@@ -20,10 +22,12 @@ import './App.css';
 function App() {
 	const [showOpening, setShowOpening] = useState(true);
 	const [showContent, setShowContent] = useState(false);
-	const [isModalOpen, setIsModalOpen] = useState(false);
-	const [isPrivacyOpen, setIsPrivacyOpen] = useState(false);
-	const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
-	const [submitError, setSubmitError] = useState<string | null>(null);
+	
+	// モーダル状態管理
+	const modalState = useModalState();
+	
+	// エラーハンドリング
+	const { error: submitError, resetError, handleError } = useErrorHandler();
 
 	// 全ての書き初め一覧を取得
 	const { data: list, isLoading, error } = useQuery({
@@ -40,49 +44,44 @@ function App() {
 	// フォーム送信
 	const { submit, isSubmitting } = useCalligraphySubmit({
 		onSuccess: () => {
-			setIsModalOpen(false);
-			setSubmitError(null);
+			modalState.close();
+			resetError();
 		},
-		onError: (err) => {
-			setSubmitError(err.message);
-		},
+		onError: handleError,
 	});
 
 	// 削除
 	const { deleteCalligraphy, isDeleting } = useCalligraphyDelete({
 		onSuccess: () => {
-			setSubmitError(null);
+			resetError();
 		},
-		onError: (err) => {
-			setSubmitError(err.message);
-		},
+		onError: handleError,
 	});
 
-	// エラーリセット関数（重複削減）
-	const resetError = useCallback(() => {
-		setSubmitError(null);
-	}, []);
-
+	// 書き初めを送信
 	const handleSubmit = useCallback((data: CreateCalligraphyRequest) => {
 		resetError();
 		submit(data);
 	}, [submit, resetError]);
 
+	// 書き初めを削除
 	const handleDeleteClick = useCallback(() => {
-		setIsDeleteConfirmOpen(true);
-	}, []);
+		modalState.open('deleteConfirm');
+	}, [modalState]);
 
+	// 書き初めを削除確認
 	const handleDeleteConfirm = useCallback(() => {
-		setIsDeleteConfirmOpen(false);
+		modalState.close();
 		resetError();
 		deleteCalligraphy();
-		setIsModalOpen(false);
-	}, [deleteCalligraphy, resetError]);
+	}, [deleteCalligraphy, resetError, modalState]);
 
+	// 書き初めを削除キャンセル
 	const handleDeleteCancel = useCallback(() => {
-		setIsDeleteConfirmOpen(false);
-	}, []);
+		modalState.close();
+	}, [modalState]);
 
+	// オープニング終了後、コンテンツをフェードイン
 	const handleOpeningComplete = useCallback(() => {
 		setShowOpening(false);
 		// オープニング終了後、少し遅延してコンテンツをフェードイン
@@ -91,23 +90,23 @@ function App() {
 		}, UI_CONFIG.OPENING_FADE_DELAY);
 	}, []);
 
+	// モーダルを開く
 	const handleOpenModal = useCallback(() => {
-		setIsModalOpen(true);
+		modalState.open('calligraphy');
 		resetError();
-	}, [resetError]);
+	}, [resetError, modalState]);
 
+	// モーダルを閉じる
 	const handleCloseModal = useCallback(() => {
-		setIsModalOpen(false);
+		modalState.close();
 		resetError();
-	}, [resetError]);
+	}, [resetError, modalState]);
 
-	const handleOpenPrivacy = useCallback(() => {
-		setIsPrivacyOpen(true);
-	}, []);
-
-	const handleClosePrivacy = useCallback(() => {
-		setIsPrivacyOpen(false);
-	}, []);
+	// カードをクリックした時にモーダルを開く
+	const handleCardClick = useCallback(() => {
+		modalState.open('calligraphy');
+		resetError();
+	}, [resetError, modalState]);
 
 	return (
 		<>
@@ -120,39 +119,16 @@ function App() {
 
 				{/* 一覧表示 */}
 				<section className="list-section">
-					{isLoading && <p className="loading-text">{MESSAGES.LOADING}</p>}
-					{error && <p className="error-text">{MESSAGES.ERROR_FETCH}</p>}
-
-					{!isLoading && !error && list && list.length === 0 && (
-						<p className="empty-text">
-							{MESSAGES.EMPTY_LIST.split('\n').map((line, i, arr) => (
-								<span key={i}>
-									{line}
-									{i < arr.length - 1 && <br />}
-								</span>
-							))}
-						</p>
-					)}
-
-					<div className="card-grid">
-						{list?.map((item) => {
-							const isMyCard = item.is_mine;
-							// user_name + created_at + updated_at の組み合わせで一意性を保証
-							const cardId = generateCardId(item);
-							return (
-								<CalligraphyCard 
-									key={cardId} 
-									calligraphy={item} 
-									isMine={isMyCard}
-									onClick={isMyCard ? handleOpenModal : undefined}
-								/>
-							);
-						})}
-					</div>
+					<CalligraphyList
+						list={list}
+						isLoading={isLoading}
+						error={error}
+						onCardClick={handleCardClick}
+					/>
 				</section>
 
 				{/* フッター */}
-				{showContent && <Footer onOpenPrivacyPolicy={handleOpenPrivacy} />}
+				{showContent && <Footer onOpenPrivacyPolicy={() => modalState.open('privacy')} />}
 			</div>
 
 			{/* フローティングボタン */}
@@ -160,29 +136,27 @@ function App() {
 
 			{/* モーダル */}
 			<CalligraphyModal
-				isOpen={isModalOpen}
+				isOpen={modalState.isOpen('calligraphy')}
 				onClose={handleCloseModal}
 				onSubmit={handleSubmit}
 				onDelete={myCalligraphy ? handleDeleteClick : undefined}
 				isSubmitting={isSubmitting}
 				isDeleting={isDeleting}
-				initialData={myCalligraphy ? {
-					user_name: myCalligraphy.user_name,
-					content: myCalligraphy.content
-				} : undefined}
+				initialData={toInitialData(myCalligraphy)}
 				isEdit={!!myCalligraphy}
 				serverError={submitError}
 			/>
 
+			{/* プライバシーポリシーモーダル */}
 			<PrivacyPolicyModal 
-				isOpen={isPrivacyOpen} 
-				onClose={handleClosePrivacy} 
+				isOpen={modalState.isOpen('privacy')} 
+				onClose={() => modalState.close()} 
 			/>
 
 			{/* 削除確認ダイアログ */}
 			<ConfirmDialog
-				isOpen={isDeleteConfirmOpen}
-				title="削除の確認"
+				isOpen={modalState.isOpen('deleteConfirm')}
+				title={MODAL_TITLES.DELETE_CONFIRM}
 				message={MESSAGES.DELETE_CONFIRM}
 				onConfirm={handleDeleteConfirm}
 				onCancel={handleDeleteCancel}
