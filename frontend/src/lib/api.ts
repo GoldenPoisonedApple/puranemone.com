@@ -1,6 +1,5 @@
 import type { Calligraphy, CreateCalligraphyRequest } from '../types/calligraphy';
-
-const BASE_URL = '/api';
+import { API_CONFIG } from '../constants';
 
 /**
  * 共通Fetchラッパー
@@ -8,7 +7,7 @@ const BASE_URL = '/api';
  * - エラーハンドリングの統一
  */
 async function client<T>(path: string, options?: RequestInit): Promise<T> {
-	const response = await fetch(`${BASE_URL}${path}`, {
+	const response = await fetch(`${API_CONFIG.BASE_URL}${path}`, {
 		...options,
 		headers: {
 			'Content-Type': 'application/json',

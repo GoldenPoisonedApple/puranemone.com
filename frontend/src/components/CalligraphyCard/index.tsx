@@ -1,4 +1,6 @@
 import type { Calligraphy } from '../../types/calligraphy';
+import { shouldCenterContent } from '../../utils/calligraphy';
+import { formatDate } from '../../utils/formatters';
 import PenIcon from '../../assets/icons/筆の無料アイコン2.svg';
 import './CalligraphyCard.css';
 
@@ -12,25 +14,16 @@ interface CalligraphyCardProps {
  * 書き初めカード表示コンポーネント
  */
 export const CalligraphyCard = ({ calligraphy, isMine = false, onClick }: CalligraphyCardProps) => {
-	// 3行以下かどうかを判定（改行で分割）
-	const lineCount = calligraphy.content.split('\n').length;
-	const isCentered = lineCount <= 3;
-
-	// 更新日時のフォーマット
-	const formattedDate = new Date(calligraphy.updated_at).toLocaleString('ja-JP', {
-		year: 'numeric',
-		month: '2-digit',
-		day: '2-digit',
-		hour: '2-digit',
-		minute: '2-digit',
-	});
+	const isCentered = shouldCenterContent(calligraphy.content);
+	const formattedDate = formatDate(calligraphy.updated_at);
+	const isClickable = isMine && !!onClick;
 
 	return (
 		<div 
-			className={`calligraphy-card ${isMine ? 'my-card' : ''} ${isMine && onClick ? 'clickable' : ''} ${isCentered ? 'centered-content' : ''}`}
-			onClick={isMine && onClick ? onClick : undefined}
-			role={isMine && onClick ? 'button' : undefined}
-			tabIndex={isMine && onClick ? 0 : undefined}
+			className={`calligraphy-card ${isMine ? 'my-card' : ''} ${isClickable ? 'clickable' : ''} ${isCentered ? 'centered-content' : ''}`}
+			onClick={isClickable ? onClick : undefined}
+			role={isClickable ? 'button' : undefined}
+			tabIndex={isClickable ? 0 : undefined}
 		>
 			<div className="card-main-content">
 				<div className="card-author">

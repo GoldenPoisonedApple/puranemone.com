@@ -1,6 +1,7 @@
-import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { CharacterCounter } from '../CharacterCounter';
+import { FORM_LIMITS } from '../../constants';
+import { useModalEffects } from '../../hooks/useModalEffects';
 import type { CreateCalligraphyRequest } from '../../types/calligraphy';
 import './CalligraphyModal.css';
 
@@ -38,37 +39,8 @@ export const CalligraphyModal = ({
 	const contentValue = watch('content', '');
 	const contentLength = contentValue?.length || 0;
 
-	// モーダルが開いたら初期データをセット
-	useEffect(() => {
-		if (isOpen && initialData) {
-			reset(initialData);
-		} else if (isOpen && !initialData) {
-			reset({ user_name: '名無し', content: '' });
-		}
-	}, [isOpen, initialData, reset]);
-
-	// Escキーでモーダルを閉じる
-	useEffect(() => {
-		const handleEsc = (e: KeyboardEvent) => {
-			if (e.key === 'Escape' && isOpen) {
-				onClose();
-			}
-		};
-		window.addEventListener('keydown', handleEsc);
-		return () => window.removeEventListener('keydown', handleEsc);
-	}, [isOpen, onClose]);
-
-	// モーダルが開いているときはbodyのスクロールを無効化
-	useEffect(() => {
-		if (isOpen) {
-			document.body.style.overflow = 'hidden';
-		} else {
-			document.body.style.overflow = 'unset';
-		}
-		return () => {
-			document.body.style.overflow = 'unset';
-		};
-	}, [isOpen]);
+	// モーダルの共通効果（Escキー、bodyスクロール制御など）
+	useModalEffects(isOpen, onClose, initialData, reset);
 
 	if (!isOpen) return null;
 
@@ -111,7 +83,7 @@ export const CalligraphyModal = ({
 							placeholder="お名前を入力"
 							{...register('user_name', {
 								required: '名前を入力してください',
-								maxLength: { value: 20, message: '20文字以内で入力してください' }
+								maxLength: { value: FORM_LIMITS.USER_NAME_MAX_LENGTH, message: `${FORM_LIMITS.USER_NAME_MAX_LENGTH}文字以内で入力してください` }
 							})}
 							className="modal-input"
 						/>
@@ -125,14 +97,14 @@ export const CalligraphyModal = ({
 							<label htmlFor="content" className="modal-label">
 								今年の抱負
 							</label>
-							<CharacterCounter current={contentLength} max={50} />
+							<CharacterCounter current={contentLength} max={FORM_LIMITS.CONTENT_MAX_LENGTH} />
 						</div>
 						<textarea
 							id="content"
-							placeholder="今年の抱負を入力（50文字以内）"
+							placeholder={`今年の抱負を入力（${FORM_LIMITS.CONTENT_MAX_LENGTH}文字以内）`}
 							{...register('content', {
 								required: '入力してください',
-								maxLength: { value: 50, message: '50文字以内で入力してください' }
+								maxLength: { value: FORM_LIMITS.CONTENT_MAX_LENGTH, message: `${FORM_LIMITS.CONTENT_MAX_LENGTH}文字以内で入力してください` }
 							})}
 							className="modal-textarea"
 							rows={4}

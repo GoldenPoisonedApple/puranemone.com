@@ -8,6 +8,8 @@ import { CalligraphyModal } from './components/CalligraphyModal';
 import { PrivacyPolicyModal } from './components/PrivacyPolicyModal';
 import { CalligraphyCard } from './components/CalligraphyCard';
 import { Footer } from './components/Footer';
+import { API_CONFIG, QUERY_KEYS, MESSAGES, UI_CONFIG } from './constants';
+import { findMyCalligraphy } from './utils/calligraphy';
 import type { CreateCalligraphyRequest } from './types/calligraphy';
 import './App.css';
 
@@ -23,37 +25,34 @@ function App() {
 
 	// 全ての書き初め一覧を取得
 	const { data: list, isLoading, error } = useQuery({
-		queryKey: ['calligraphy', 'list'],
+		queryKey: QUERY_KEYS.CALLIGRAPHY_LIST,
 		queryFn: calligraphyApi.list,
-		staleTime: 1000 * 60 * 5, // 5分間はキャッシュを使用
+		staleTime: API_CONFIG.STALE_TIME,
 	});
 
 	// listから自分の書き初めを抽出
-	const myCalligraphy = list?.find(item => item.is_mine);
+	const myCalligraphy = list ? findMyCalligraphy(list) : undefined;
 
 	// フォーム送信
-	const { submit, isSubmitting } = useCalligraphySubmit(
-		() => {
+	const { submit, isSubmitting } = useCalligraphySubmit({
+		onSuccess: () => {
 			setIsModalOpen(false);
 			setSubmitError(null);
 		},
-		(err) => {
-			console.error('書き初めの保存に失敗しました:', err);
+		onError: (err) => {
 			setSubmitError(err.message);
-		}
-	);
+		},
+	});
 
 	// 削除
-	const { deleteCalligraphy, isDeleting } = useCalligraphyDelete(
-		() => {
-			console.log('書き初めを削除しました');
+	const { deleteCalligraphy, isDeleting } = useCalligraphyDelete({
+		onSuccess: () => {
 			setSubmitError(null);
 		},
-		(err) => {
-			console.error('書き初めの削除に失敗しました:', err);
+		onError: (err) => {
 			setSubmitError(err.message);
-		}
-	);
+		},
+	});
 
 	const handleSubmit = (data: CreateCalligraphyRequest) => {
 		setSubmitError(null);
@@ -61,7 +60,7 @@ function App() {
 	};
 
 	const handleDelete = () => {
-		if (window.confirm('書き初めを削除してもよろしいですか？')) {
+		if (window.confirm(MESSAGES.DELETE_CONFIRM)) {
 			setSubmitError(null);
 			deleteCalligraphy();
 			setIsModalOpen(false);
@@ -73,7 +72,7 @@ function App() {
 		// オープニング終了後、少し遅延してコンテンツをフェードイン
 		setTimeout(() => {
 			setShowContent(true);
-		}, 100);
+		}, UI_CONFIG.OPENING_FADE_DELAY);
 	};
 
 	const handleOpenModal = () => {
@@ -97,11 +96,18 @@ function App() {
 
 				{/* 一覧表示 */}
 				<section className="list-section">
-					{isLoading && <p className="loading-text">読み込み中...</p>}
-					{error && <p className="error-text">データの取得に失敗しました</p>}
+					{isLoading && <p className="loading-text">{MESSAGES.LOADING}</p>}
+					{error && <p className="error-text">{MESSAGES.ERROR_FETCH}</p>}
 
 					{!isLoading && !error && list && list.length === 0 && (
-						<p className="empty-text">まだ書き初めが投稿されていません。<br />右下のボタンから書き初めを奉納しましょう。</p>
+						<p className="empty-text">
+							{MESSAGES.EMPTY_LIST.split('\n').map((line, i, arr) => (
+								<span key={i}>
+									{line}
+									{i < arr.length - 1 && <br />}
+								</span>
+							))}
+						</p>
 					)}
 
 					<div className="card-grid">
