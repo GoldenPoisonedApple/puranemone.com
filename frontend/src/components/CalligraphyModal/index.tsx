@@ -143,7 +143,7 @@ export const CalligraphyModal = ({
 					</div>
 
 					<p className="modal-warning">
-						※個人情報の入力はお控えください。曲がりなりにもにもインターネッツですからね。
+						※一応全世界公開なので個人情報の入力はお控えください。
 					</p>
 
 					<div className="modal-actions">
