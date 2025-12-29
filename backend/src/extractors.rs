@@ -2,6 +2,9 @@
 // リクエストがハンドラーに到達する前に実行され、必要なデータを抽出・変換してハンドラーに渡す役割を果たす
 // Axumが勝手にねじ込んでくれる
 
+use std::net::IpAddr;
+use std::str::FromStr;
+
 use axum::{
   async_trait,
   extract::FromRequestParts,
@@ -63,7 +66,7 @@ where
 }
 
 /// クライアントIPアドレス抽出用エクストラクター
-pub struct ClientIp(pub String);
+pub struct ClientIp(pub Option<IpAddr>);
 
 #[async_trait]
 impl<S> FromRequestParts<S> for ClientIp
@@ -78,8 +81,8 @@ where
       .headers
       .get("x-forwarded-for")
       .and_then(|v| v.to_str().ok())
-      .map(|s| s.split(',').next().unwrap_or(s).trim().to_string())
-      .unwrap_or_else(|| "unknown".to_string());
+      .map(|s| s.split(',').next().unwrap_or(s).trim())
+      .and_then(|s| IpAddr::from_str(s).ok());
 
     Ok(ClientIp(ip))
   }

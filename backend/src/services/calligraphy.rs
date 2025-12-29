@@ -3,6 +3,7 @@ use crate::models::calligraphy::Calligraphy;
 use crate::repositories::db_repository::CalligraphyRepositoryTrait;
 use moka::future::Cache;
 use sqlx::types::ipnetwork::IpNetwork;
+use std::net::IpAddr;
 use std::time::Duration;
 use uuid::Uuid;
 
@@ -11,8 +12,8 @@ use uuid::Uuid;
 #[derive(Clone)]
 pub struct CalligraphyService<R: CalligraphyRepositoryTrait> {
   repository: R,
-  write_limit_cache: Cache<String, ()>, // 書き込み制限用
-  read_limit_cache: Cache<String, ()>,  // 読み込み制限用
+  write_limit_cache: Cache<IpAddr, ()>, // 書き込み制限用
+  read_limit_cache: Cache<IpAddr, ()>,  // 読み込み制限用
 }
 
 const WRITE_LIMIT_DURATION: Duration = Duration::from_secs(3);
@@ -36,7 +37,7 @@ impl<R: CalligraphyRepositoryTrait> CalligraphyService<R> {
   }
 
   /// 書き込み系（upsert, delete）のレート制限
-  pub async fn check_write_rate_limit(&self, ip: String) -> Result<(), AppError> {
+  pub async fn check_write_rate_limit(&self, ip: IpAddr) -> Result<(), AppError> {
     if self.write_limit_cache.get(&ip).await.is_some() {
       return Err(AppError::TooManyRequests);
     }
@@ -45,7 +46,7 @@ impl<R: CalligraphyRepositoryTrait> CalligraphyService<R> {
   }
 
   /// 読み込み系（list, get）のレート制限
-  pub async fn check_read_rate_limit(&self, ip: String) -> Result<(), AppError> {
+  pub async fn check_read_rate_limit(&self, ip: IpAddr) -> Result<(), AppError> {
     if self.read_limit_cache.get(&ip).await.is_some() {
       return Err(AppError::TooManyRequests);
     }
