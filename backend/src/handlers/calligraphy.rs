@@ -63,19 +63,14 @@ pub async fn list<R: CalligraphyRepositoryTrait>(
   if let Some(ip_addr) = ip {
     service.check_read_rate_limit(ip_addr).await?;
   }
-
+	// 全件取得
   let list = service.get_all().await?;
+	// レスポンス用DTOに変換
   let response: Vec<CalligraphyResponse> = list
     .into_iter()
     .map(|c| {
       let is_mine = c.user_id == auth_user.id;
-      CalligraphyResponse {
-        user_name: c.user_name,
-        content: c.content,
-        created_at: c.created_at,
-        updated_at: c.updated_at,
-        is_mine,
-      }
+      c.to_response(is_mine)
     })
     .collect();
   Ok((StatusCode::OK, Json(response)))
@@ -91,16 +86,10 @@ pub async fn get<R: CalligraphyRepositoryTrait>(
   if let Some(ip_addr) = ip {
     service.check_read_rate_limit(ip_addr).await?;
   }
-
+	// 自分の書き初めを取得
   let calligraphy = service.get(auth_user.id).await?;
-
-  let response = CalligraphyResponse {
-    user_name: calligraphy.user_name,
-    content: calligraphy.content,
-    created_at: calligraphy.created_at,
-    updated_at: calligraphy.updated_at,
-    is_mine: true,
-  };
+	// レスポンス用DTOに変換
+  let response = calligraphy.to_response(true);
 
   Ok((StatusCode::OK, Json(response)))
 }
@@ -127,10 +116,22 @@ mod tests {
   use crate::repositories::db_repository::MockCalligraphyRepositoryTrait;
   use async_trait::async_trait;
   use sqlx::types::ipnetwork::IpNetwork;
-  use std::net::IpAddr;
   use std::sync::Arc;
   use time::OffsetDateTime;
   use uuid::Uuid;
+
+  fn create_dummy_calligraphy(user_id: Uuid, user_name: &str, content: &str) -> Calligraphy {
+    Calligraphy {
+      user_id,
+      user_name: user_name.to_string(),
+      content: content.to_string(),
+      ip_address: None,
+      user_agent: None,
+      accept_language: None,
+      created_at: OffsetDateTime::now_utc(),
+      updated_at: OffsetDateTime::now_utc(),
+    }
+  }
 
   /// upsertハンドラーのテスト
   #[tokio::test]
@@ -140,18 +141,7 @@ mod tests {
     let user_name = "テストユーザー".to_string();
     let content = "Test Content".to_string();
 
-    let expected_calligraphy = Calligraphy {
-      user_id,
-      user_name: user_name.clone(),
-      content: content.clone(),
-      ip_address: Some(IpNetwork::from(IpAddr::V4(std::net::Ipv4Addr::new(
-        127, 0, 0, 1,
-      )))),
-      user_agent: None,
-      accept_language: None,
-      created_at: OffsetDateTime::now_utc(),
-      updated_at: OffsetDateTime::now_utc(),
-    };
+    let expected_calligraphy = create_dummy_calligraphy(user_id, &user_name, &content);
     let returned_calligraphy = expected_calligraphy.clone();
 
     mock_repo
@@ -188,16 +178,7 @@ mod tests {
     let user_name = "テストユーザー".to_string();
     let content = "List Item".to_string();
 
-    let expected_calligraphy = Calligraphy {
-      user_id,
-      user_name: user_name.clone(),
-      content: content.clone(),
-			ip_address: None,
-      user_agent: None,
-      accept_language: None,
-      created_at: OffsetDateTime::now_utc(),
-      updated_at: OffsetDateTime::now_utc(),
-    };
+    let expected_calligraphy = create_dummy_calligraphy(user_id, &user_name, &content);
 
     mock_repo
       .expect_find_all()
@@ -220,16 +201,7 @@ mod tests {
     let user_name = "テストユーザー".to_string();
     let content = "Get Item".to_string();
 
-    let expected_calligraphy = Calligraphy {
-      user_id,
-      user_name: user_name.clone(),
-      content: content.clone(),
-			ip_address: None,
-      user_agent: None,
-      accept_language: None,
-      created_at: OffsetDateTime::now_utc(),
-      updated_at: OffsetDateTime::now_utc(),
-    };
+    let expected_calligraphy = create_dummy_calligraphy(user_id, &user_name, &content);
 
     mock_repo
       .expect_find_by_id()
@@ -307,16 +279,7 @@ mod tests {
       .expect_create()
       .times(2) // 2回だけ呼ばれるはず
       .returning(move |uid, uname, c, _ip, _ua, _al| {
-        Ok(Calligraphy {
-          user_id: uid,
-          user_name: uname,
-          content: c,
-          ip_address: None,
-          user_agent: None,
-          accept_language: None,
-          created_at: OffsetDateTime::now_utc(),
-          updated_at: OffsetDateTime::now_utc(),
-        })
+        Ok(create_dummy_calligraphy(uid, &uname, &c))
       });
 
     // MockをArcでラップしてClone可能にする

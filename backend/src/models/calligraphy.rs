@@ -54,3 +54,17 @@ pub struct CalligraphyResponse {
   pub updated_at: OffsetDateTime,
   pub is_mine: bool,
 }
+
+
+impl Calligraphy {
+	/// CalligraphyモデルからAPIレスポンス用DTOに変換する
+  pub fn to_response(&self, is_mine: bool) -> CalligraphyResponse {
+    CalligraphyResponse {
+      user_name: self.user_name.clone(),
+      content: self.content.clone(),
+      created_at: self.created_at,
+      updated_at: self.updated_at,
+      is_mine,
+    }
+  }
+}
