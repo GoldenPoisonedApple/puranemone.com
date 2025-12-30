@@ -14,6 +14,8 @@ import { findMyCalligraphy, toInitialData } from './utils/calligraphy';
 import { useErrorHandler } from './hooks/useErrorHandler';
 import { useModalState } from './hooks/useModalState';
 import type { CreateCalligraphyRequest } from './types/calligraphy';
+import SunriseIcon from './assets/icons/初日の出アイコン.svg';
+import HorseIcon from './assets/icons/馬イラスト.svg';
 import './App.css';
 
 /**
@@ -113,6 +115,11 @@ function App() {
 	return (
 		<>
 			{showOpening && <Opening onComplete={handleOpeningComplete} />}
+			
+			<div className={`fixed-icons ${showContent ? 'show' : ''}`}>
+				<img src={HorseIcon} alt="馬イラスト" className="left-icon" />
+				<img src={SunriseIcon} alt="初日の出アイコン" className="right-icon" />
+			</div>
 			
 			<div className={`app ${showContent ? 'show' : ''}`}>
 				<h1>書き初め</h1>

@@ -145,3 +145,50 @@
     padding: 0.75rem 0;
   }
 }
+
+/* アイコン配置 */
+.fixed-icons {
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 0;
+  z-index: 50;
+  opacity: 0;
+  transition: opacity 0.8s ease-out;
+  pointer-events: none;
+}
+
+.fixed-icons.show {
+  opacity: 1;
+}
+
+.left-icon, .right-icon {
+  position: absolute;
+  top: 40px;
+  width: 60px;
+  height: auto;
+  pointer-events: auto;
+}
+
+.left-icon {
+  left: 20px;
+	width: 80px;
+}
+
+.right-icon {
+  right: 20px;
+}
+
+@media (max-width: 768px) {
+  .left-icon, .right-icon {
+    width: 40px;
+    top: 20px;
+  }
+  .left-icon {
+    left: 10px;
+		width: 55px;
+  }
+  .right-icon {
+    right: 10px;
+  }
+}
