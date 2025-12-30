@@ -11,7 +11,7 @@ export const useModalEffects = (
 	onClose: () => void,
 	initialData?: CreateCalligraphyRequest,
 	reset?: UseFormReset<CreateCalligraphyRequest>,
-	modalContentRef?: React.RefObject<HTMLDivElement>
+	modalContentRef?: React.RefObject<HTMLDivElement | null>
 ) => {
 	const previousActiveElementRef = useRef<HTMLElement | null>(null);
 

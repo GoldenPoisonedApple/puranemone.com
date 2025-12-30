@@ -46,7 +46,7 @@ export const CalligraphyList = ({ list, isLoading, error, onCardClick }: Calligr
 						key={cardId}
 						calligraphy={item}
 						isMine={isMyCard}
-						onClick={isMyCard && onCardClick ? onCardClick : undefined}
+						onClick={isMyCard && onCardClick ? () => onCardClick(item) : undefined}
 					/>
 				);
 			})}
