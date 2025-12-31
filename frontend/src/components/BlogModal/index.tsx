@@ -1,5 +1,10 @@
 import React, { useState, useEffect } from 'react';
+import vrchatImage from '../../assets/blog/VRChat.png';
+import miniPCImage from '../../assets/blog/MiniPC.jpg';
+import komikeDay1Image from '../../assets/blog/KomikeDay1.jpg';
+import karaokeImage from '../../assets/blog/karaoke.jpg';
 import './BlogModal.css';
+
 
 interface BlogEntry {
 	date: string;
@@ -10,55 +15,45 @@ interface BlogEntry {
 
 const BLOG_DATA: BlogEntry[] = [
 	{
-		date: '12/22',
-		title: 'プロジェクト始動',
-		content: '今日から書き初めアプリの開発を始めました。今年はWebサイト形式で公開することにしました。技術選定はReactとViteで。',
+		date: '8月',
+		title: 'VRChat開始',
+		content: 'VRChatにドハマりして睡眠をキャンセルしていた。\n英語を話す練習という建前で初めたのだが、単純に海外の文化に触れるのは存外に楽しく、ウガンダのバナナ経済とか、イタリアにおいて「ピザにケチャップをかけるのは寿司にマヨネーズをかけるようなもの」だとか、中国はGFW(国家規模のネット検閲)があるから皆VPN使ってるよ、など面白い話を気軽にできる。\nあと何が嬉しいかと言うと皆ヲタクな訳であって、そうなると必然的に日本のコンテンツに詳しい。実際話した日本語の話せる人のうち10割はアニメで勉強したと言っていた。怖い。\nということで日本人においては、拙い英語でも根気よく付き合ってくれて、話題も困ることなく話せる確率が高いと思う。本当に語学において最も向いているツールであることは間違いないと思う。おススメです。',
+		image: vrchatImage,
 	},
 	{
-		date: '12/23',
-		title: 'デザイン検討',
-		content: '和風のデザインにするために、フォントやカラーパレットを選定中。縦書きのCSSは難しいけど、雰囲気が出るので頑張りたい。',
-	},
-	{
-		date: '12/24',
-		title: 'クリスマスイブ',
-		content: '世間はクリスマスですが、私はコードを書いています。モーダルのアニメーションが良い感じに動くようになってきました。',
-	},
-	{
-		date: '12/25',
-		title: 'API連携',
-		content: 'バックエンドとの通信部分を実装。Dockerでの環境構築に少し手間取ったけど、なんとか疎通確認完了。',
-	},
-	{
-		date: '12/26',
-		title: '筆文字の実装',
-		content: '書き初めなので、フォント選びが重要。Google Fontsから良さそうな明朝体を探してきました。',
+		date: '～12/26',
+		title: '年末開発決意',
+		content: '謎の忙しさによりこの時点まで何もしていない。年末にこのアプリを作ることは去年から決めていたのに。全くもって終わりである。ミニPCのUbuntu化はしていた。',
+		image: miniPCImage,
 	},
 	{
 		date: '12/27',
-		title: 'レスポンシブ対応',
-		content: 'スマホでの表示崩れを修正中。縦書きと横書きの切り替えが複雑...。',
+		title: '開発開始',
+		content: '開発。なんだかんだ言ってサーバーで一から作るのは初めてである。なぜ2日間しか開発期間が無い？？？',
 	},
 	{
 		date: '12/28',
-		title: '隠し要素',
-		content: 'ちょっとした遊び心が欲しくて、隠し要素を入れることにしました。見つけてくれるかな？',
+		title: '形作り完了',
+		content: '睡眠キャンセルで形はなんとか作り終わった。フロント(見た目)はLLM様様である。これを書いている今は2025年12月31日23時08分である。終わらない。',
 	},
 	{
 		date: '12/29',
-		title: 'バグ修正',
-		content: '細かいバグを潰していく作業。iOSのSafariで挙動がおかしいところがあったので修正。',
+		title: '帰省',
+		content: '帰省。電車に荷物を置き忘れる。徹夜明けの電車移動はしないほうがいいらしい。泣く。',
 	},
 	{
 		date: '12/30',
-		title: '最終調整',
-		content: 'アニメーションのタイミングや、文字の大きさを微調整。リリースまであと少し！',
+		title: 'コミケ初日',
+		content: 'コミケ初日。なぜか東京のホテルで未だに開発をしている。なぜ',
+		image: komikeDay1Image,
 	},
 	{
 		date: '12/31',
-		title: '大晦日',
-		content: 'いよいよ公開日。今年も一年ありがとうございました。来年も良い年になりますように。',
-	},
+		title: 'コミケ二日目',
+		content: '今日である。ギリギリである。なんなら今カラオケにいます。若いが故の無茶',
+		image: karaokeImage,
+
+	}
 ];
 
 interface BlogModalProps {
@@ -116,6 +111,7 @@ export const BlogModal: React.FC<BlogModalProps> = ({ isOpen, onClose }) => {
 							</div>
 						)}
 					</div>
+					<h2 className="blog-title">{currentEntry.title}</h2>
 					<p className="blog-text">{currentEntry.content}</p>
 				</div>
 
