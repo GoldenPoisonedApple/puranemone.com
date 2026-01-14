@@ -9,11 +9,14 @@ import { PrivacyPolicyModal } from './components/PrivacyPolicyModal';
 import { ConfirmDialog } from './components/ConfirmDialog';
 import { CalligraphyList } from './components/CalligraphyList';
 import { Footer } from './components/Footer';
+import { BlogModal } from './components/BlogModal';
 import { API_CONFIG, QUERY_KEYS, MESSAGES, UI_CONFIG, MODAL_TITLES } from './constants';
 import { findMyCalligraphy, toInitialData } from './utils/calligraphy';
 import { useErrorHandler } from './hooks/useErrorHandler';
 import { useModalState } from './hooks/useModalState';
 import type { CreateCalligraphyRequest } from './types/calligraphy';
+import SunriseIcon from './assets/icons/初日の出アイコン.svg';
+import HorseIcon from './assets/icons/馬イラスト.svg';
 import './App.css';
 
 /**
@@ -104,6 +107,11 @@ function App() {
 		resetError();
 	}, [resetError, modalState]);
 
+	// ブログモーダルを開く
+	const handleOpenBlogModal = useCallback(() => {
+		modalState.open('blog');
+	}, [modalState]);
+
 	// カードをクリックした時にモーダルを開く
 	const handleCardClick = useCallback(() => {
 		modalState.open('calligraphy');
@@ -113,6 +121,16 @@ function App() {
 	return (
 		<>
 			{showOpening && <Opening onComplete={handleOpeningComplete} />}
+			
+			<div className={`fixed-icons ${showContent ? 'show' : ''}`}>
+				<img src={HorseIcon} alt="馬イラスト" className="left-icon" />
+				<img 
+					src={SunriseIcon} 
+					alt="初日の出アイコン" 
+					className="right-icon" 
+					onClick={handleOpenBlogModal}
+				/>
+			</div>
 			
 			<div className={`app ${showContent ? 'show' : ''}`}>
 				<h1>書き初め</h1>
@@ -154,6 +172,12 @@ function App() {
 			<PrivacyPolicyModal 
 				isOpen={modalState.isOpen('privacy')} 
 				onClose={() => modalState.close()} 
+			/>
+
+			{/* 開発ブログモーダル */}
+			<BlogModal
+				isOpen={modalState.isOpen('blog')}
+				onClose={() => modalState.close()}
 			/>
 
 			{/* 削除確認ダイアログ */}

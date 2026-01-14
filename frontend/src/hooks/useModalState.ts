@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 
-type ModalType = 'calligraphy' | 'privacy' | 'deleteConfirm';
+type ModalType = 'calligraphy' | 'privacy' | 'deleteConfirm' | 'blog';
 
 /**
  * モーダル状態管理用カスタムフック
