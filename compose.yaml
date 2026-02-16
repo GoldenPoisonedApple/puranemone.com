@@ -8,6 +8,9 @@ services:
     depends_on:
       - backend
     # 外部(Host)へのポート開放は不要。Tunnelが内部で接続するため。
+    networks:
+      - cf_tunnel_net
+      - default
 
   # 2. Backend (Rust + Axum)
   # Frontendからのリクエスト(/api)のみを処理する
@@ -19,6 +22,8 @@ services:
       - db
     environment:
       - DATABASE_URL=postgres://${DB_USER}:${DB_PASSWORD}@db:5432/${DB_NAME}
+    networks:
+      - default
 
   # 3. Database (PostgreSQL)
   db:
@@ -32,16 +37,14 @@ services:
       - POSTGRES_USER=${DB_USER}
       - POSTGRES_PASSWORD=${DB_PASSWORD}
       - POSTGRES_DB=${DB_NAME}
-
-  # 4. Ingress (Cloudflare Tunnel)
-  tunnel:
-    image: cloudflare/cloudflared:latest
-    container_name: puranemone_tunnel
-    restart: unless-stopped
-    command: tunnel run
-    environment:
-      - TUNNEL_TOKEN=${TUNNEL_TOKEN}
+    networks:
+      - default
 
 # コンテナを消しても残るデータ置き場
 volumes:
   db_data:
+
+# ネットワーク定義
+networks:
+  cf_tunnel_net:
+    external: true
