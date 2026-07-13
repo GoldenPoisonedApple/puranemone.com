@@ -8,7 +8,7 @@ export default defineConfig({
 		// Docker内からのアクセス許可
 		host: '0.0.0.0',
 		port: 80,
-		allowedHosts: ['puranemone.com'],
+		allowedHosts: ['calligraphy.puranemone.com'],
 		// APIプロキシ設定 (Nginxの代わり)
 		proxy: {
 			'/api': {
